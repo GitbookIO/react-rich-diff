@@ -1,0 +1,55 @@
+{
+  "name": "react-rich-diff",
+  "version": "0.0.0",
+  "description": "React component to render a rich diff between two documents",
+  "main": "lib/index.js",
+  "scripts": {
+    "lint": "eslint .",
+    "prepublish": "rm -rf ./lib; babel --out-dir ./lib ./src",
+    "test": "npm run lint",
+    "postpublish": "npm run build-example-assets; npm run deploy-example",
+    "build-example-js": "browserify ./example/main.js -o ./example/bundle.js -t [ babelify --presets [ es2015 react ] ]",
+    "build-example": "npm run build-example-js",
+    "serve-example": "live-server ./example/ --no-browser --port=8081",
+    "start": "npm run build-example && npm run serve-example",
+    "deploy-example": "npm run build-example && gh-pages -d ./example"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GitbookIO/react-rich-diff.git"
+  },
+  "keywords": [
+    "slate",
+    "markdown",
+    "react",
+    "gitbook",
+    "markup-it"
+  ],
+  "author": "Samy Pesse <samy@gitbook.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/GitbookIO/react-rich-diff/issues"
+  },
+  "homepage": "https://github.com/GitbookIO/react-rich-diff#readme",
+  "devDependencies": {
+    "babel-cli": "^6.10.1",
+    "babel-core": "^6.18.0",
+    "babel-preset-es2015": "^6.18.0",
+    "babel-preset-react": "^6.16.0",
+    "babel-preset-stage-0": "^6.16.0",
+    "babelify": "^7.3.0",
+    "browserify": "^13.3.0",
+    "eslint": "3.12.2",
+    "eslint-config-gitbook": "1.5.0",
+    "gh-pages": "^0.12.0",
+    "http-server": "^0.9.0",
+    "live-server": "^1.2.0",
+    "react-dom": "^15.4.2"
+  },
+  "peerDependencies": {
+    "markup-it": "^3.3.0"
+  },
+  "dependencies": {
+    "classnames": "^2.2.5"
+  }
+}
