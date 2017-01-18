@@ -22,15 +22,23 @@ const state = MarkupIt.State.create(markdown);
 
 const MyApp = React.createClass({
     render() {
-        const base = state.deserializeToDocument('Hello **World**');
-        const head = state.deserializeToDocument('Hello **World 2**');
+        const original = state.deserializeToDocument('Hello **World**');
+        const modified = state.deserializeToDocument('Hello **World 2**');
 
         return (
             <RichDiff
-                base={base}
-                head={head}
+                wrapIdentiticals={20}
+                original={original}
+                modified={modified}
             />
         )
     }
 })
 ```
+
+### CSS
+
+`react-rich-diff` creates HTML elements with classes `diff-<kind>-<type`.
+
+`kind` can be one of `block`, `inline` or `character`.
+`type` can be one of `added`, `removed` or `modified`.
