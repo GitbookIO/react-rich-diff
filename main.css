@@ -1,0 +1,16 @@
+.diff-character-removed {
+    color: red;
+}
+
+.diff-character-added {
+    color: green;
+}
+
+
+.diff-inline-removed, .diff-block-removed {
+    outline: 2px solid red;
+}
+
+.diff-block-added, .diff-block-removed {
+    outline: 2px solid green;
+}
