@@ -1,6 +1,6 @@
 {
   "name": "react-rich-diff",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "React component to render a rich diff between two documents",
   "main": "lib/index.js",
   "scripts": {
