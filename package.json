@@ -50,6 +50,7 @@
     "markup-it": "^3.3.0"
   },
   "dependencies": {
-    "classnames": "^2.2.5"
+    "classnames": "^2.2.5",
+    "immutable": "^3.8.1"
   }
 }
