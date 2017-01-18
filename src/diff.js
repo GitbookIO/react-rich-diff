@@ -1,5 +1,6 @@
 const { List, Record } = require('immutable');
 
+let KEY = 0;
 const TYPES = {
     IDENTICAL: 'identical',
     MODIFIED:  'modified',
@@ -13,7 +14,14 @@ const DEFAULTS = {
     modified: null
 };
 
-class Change extends Record(DEFAULTS) {}
+class Change extends Record(DEFAULTS) {
+    static create(props) {
+        return new Change({
+            key: (KEY++),
+            ...props
+        });
+    }
+}
 
 /**
  * Longest common subsequence
@@ -53,8 +61,6 @@ function lcs(xs, ys, isEqual) {
  * @return {List<Change>}
  */
 function diff(original, modified, isVariant, isEqual) {
-    console.log('diff', original, modified);
-
     original = original.toArray();
     modified = modified.toArray();
     let subsequence = lcs(original, modified, isVariant);
@@ -71,7 +77,7 @@ function diff(original, modified, isVariant, isEqual) {
                 break;
             }
 
-            result.push(new Change({
+            result.push(Change.create({
                 type: TYPES.ADDED,
                 modified: mfirst
             }));
@@ -83,13 +89,13 @@ function diff(original, modified, isVariant, isEqual) {
                 break;
             }
 
-            result.push(new Change({
+            result.push(Change.create({
                 type: TYPES.REMOVED,
                 original: ofirst
             }));
         }
 
-        result.push(new Change({
+        result.push(Change.create({
             type: isEqual(sfirst.original, sfirst.modified) ? TYPES.IDENTICAL : TYPES.MODIFIED,
             original: sfirst.original,
             modified: sfirst.modified
@@ -98,7 +104,7 @@ function diff(original, modified, isVariant, isEqual) {
 
     while (modified.length > 0) {
         [ mfirst, ...modified ] = modified;
-        result.push(new Change({
+        result.push(Change.create({
             type: TYPES.ADDED,
             modified: mfirst
         }));
@@ -107,7 +113,7 @@ function diff(original, modified, isVariant, isEqual) {
     while (original.length > 0) {
         [ ofirst, ...original ] = original;
 
-        result.push(new Change({
+        result.push(Change.create({
             type: TYPES.REMOVED,
             original: ofirst
         }));

@@ -2,8 +2,8 @@ const React = require('react');
 
 const { TYPES } = require('./diff');
 const diffNodes = require('./diffNodes');
+const NodeWrapper = require('./NodeWrapper');
 const Node = require('./Node');
-const PureNode = require('./PureNode');
 
 const ChangeWrapper = React.createClass({
     propTypes: {
@@ -34,30 +34,25 @@ const ChangeNode = React.createClass({
 
     render() {
         const { change } = this.props;
-        console.log('ChangeNode', change);
         const { type, original, modified } = change;
 
         if (type == TYPES.IDENTICAL) {
-            return <PureNode node={original} />;
+            return <Node node={original} />;
         }
 
         else if (type == TYPES.MODIFIED) {
             if (original.kind == 'text') {
                 return (
                     <ChangeNodes
-                        Wrapper={props => <Node node={original}>{props.children}</Node>}
+                        Wrapper={props => <span>{props.children}</span>}
                         original={original.characters}
                         modified={modified.characters}
                         />
                 );
-            } else if (original.kind == 'character') {
-                return (
-                    <span>{modified.text} <del>{original.text}</del></span>
-                );
             } else {
                 return (
                     <ChangeNodes
-                        Wrapper={props => <Node node={original}>{props.children}</Node>}
+                        Wrapper={props => <NodeWrapper node={original}>{props.children}</NodeWrapper>}
                         original={original.nodes}
                         modified={modified.nodes}
                         />
@@ -68,20 +63,9 @@ const ChangeNode = React.createClass({
         else {
             const base = type == TYPES.ADDED ? modified : original;
 
-            if (base.kind == 'character') {
-                return (
-                    <ChangeWrapper type={type} kind={base.kind}>
-                        {base.text}
-                    </ChangeWrapper>
-                );
-            }
-
-
             return (
                 <ChangeWrapper type={type} kind={base.kind}>
-                    <Node node={base}>
-                        {(base.nodes || base.characters).map(node => <Node key={node} node={node} />)}
-                    </Node>
+                    <Node node={base} />
                 </ChangeWrapper>
             );
         }
@@ -100,11 +84,9 @@ const ChangeNodes = React.createClass({
 
     render() {
         const { Wrapper, original, modified } = this.props;
-
-        console.log('ChangeNodes', original, modified);
         const changes = diffNodes(original, modified);
 
-        const children = changes.map(c => <ChangeNode key={c} change={c} />);
+        const children = changes.map(c => <ChangeNode key={c.key} change={c} />);
 
         return (
              <Wrapper>

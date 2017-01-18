@@ -1,28 +1,33 @@
-/* eslint-disable react/prop-types */
 const React = require('react');
-
-const schema = require('./schema');
-
-const defaultBlock  = ({ children }) => <div>{children}</div>;
-const defaultInline = ({ children }) => <span>{children}</span>;
+const NodeWrapper = require('./NodeWrapper');
 
 /**
- *
+ * Render an entire slate node and its children.
  * @type {React}
  */
 const Node = React.createClass({
     propTypes: {
-        node:     React.PropTypes.object.isRequired,
-        children: React.PropTypes.node
+        node: React.PropTypes.object.isRequired
     },
 
     render() {
-        const { node, children } = this.props;
-        const Renderer = schema.nodes[node.type] || (
-            node.kind == 'block' ? defaultBlock : defaultInline
-        );
+        const { node } = this.props;
 
-        return <Renderer node={node}>{children}</Renderer>;
+        if (node.kind == 'character') {
+            return <span>{node.text}</span>;
+        } else if (node.kind == 'text') {
+            return (
+                <span>
+                    {node.characters.map((c, i) => <Node key={i} node={c} />)}
+                </span>
+            );
+        } else {
+            return (
+                <NodeWrapper node={node}>
+                    {node.nodes.map(c => <Node key={c.key} node={c} />)}
+                </NodeWrapper>
+            );
+        }
     }
 });
 

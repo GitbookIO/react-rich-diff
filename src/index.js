@@ -14,8 +14,6 @@ const RichDiff = React.createClass({
     render() {
         const { original, modified } = this.props;
 
-        console.log(original, modified);
-
         return (
             <ChangeNodes
                 Wrapper={props => <div className="RichDiff">{props.children}</div>}
