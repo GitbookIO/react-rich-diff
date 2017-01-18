@@ -1,10 +1,10 @@
 const { List, Record } = require('immutable');
 
 const TYPES = {
-    IDENTICAL: '=',
-    MODIFIED:  '!',
-    REMOVED:   '-',
-    ADDED:     '+'
+    IDENTICAL: 'identical',
+    MODIFIED:  'modified',
+    REMOVED:   'removed',
+    ADDED:     'added'
 };
 
 const DEFAULTS = {
@@ -53,6 +53,8 @@ function lcs(xs, ys, isEqual) {
  * @return {List<Change>}
  */
 function diff(original, modified, isVariant, isEqual) {
+    console.log('diff', original, modified);
+
     original = original.toArray();
     modified = modified.toArray();
     let subsequence = lcs(original, modified, isVariant);
@@ -115,3 +117,4 @@ function diff(original, modified, isVariant, isEqual) {
 }
 
 module.exports = diff;
+module.exports.TYPES = TYPES;

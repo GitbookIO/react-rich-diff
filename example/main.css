@@ -1,1 +1,7 @@
+.diff-character-removed {
+    color: red;
+}
 
+.diff-character-added {
+    color: green;
+}

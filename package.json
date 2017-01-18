@@ -44,7 +44,9 @@
     "gh-pages": "^0.12.0",
     "http-server": "^0.9.0",
     "live-server": "^1.2.0",
-    "react-dom": "^15.4.2"
+    "markup-it": "^3.3.1",
+    "react-dom": "^15.4.2",
+    "slate": "^0.16.9"
   },
   "peerDependencies": {
     "markup-it": "^3.3.0"
