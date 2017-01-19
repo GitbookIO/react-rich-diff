@@ -5,6 +5,7 @@ const { BLOCKS, MARKS, INLINES } = require('markup-it');
 const Heading = require('./Heading');
 const Image = require('./Image');
 const Link = require('./Link');
+const Table = require('./Table');
 
 function componentFromtag(tagName) {
     return (props) => {
@@ -24,7 +25,7 @@ const SCHEMA = {
         [BLOCKS.HR]:         (props => <hr {...props.attributes} />),
         [BLOCKS.CODE]:       componentFromtag('pre'),
         // Tables
-        [BLOCKS.TABLE]:      componentFromtag('table'),
+        [BLOCKS.TABLE]:      Table,
         [BLOCKS.TABLE_ROW]:  componentFromtag('tr'),
         [BLOCKS.TABLE_CELL]: componentFromtag('td'),
         // Lists
