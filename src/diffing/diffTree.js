@@ -1,27 +1,5 @@
-const { List, Record } = require('immutable');
-
-let KEY = 0;
-const TYPES = {
-    IDENTICAL: 'identical',
-    MODIFIED:  'modified',
-    REMOVED:   'removed',
-    ADDED:     'added'
-};
-
-const DEFAULTS = {
-    type:     String(TYPES.IDENTICAL),
-    original: null,
-    modified: null
-};
-
-class Change extends Record(DEFAULTS) {
-    static create(props) {
-        return new Change({
-            key: (KEY++),
-            ...props
-        });
-    }
-}
+const { List } = require('immutable');
+const Change = require('./Change');
 
 /**
  * Longest common subsequence
@@ -53,16 +31,17 @@ function lcs(xs, ys, isEqual) {
 }
 
 /**
- * Diff two lists of items.
+ * Diff two tree of items.
  * @param  {List}  original
  * @param  {List}  modified
  * @param  {Function} isVariant(a, b): Return true if a and b are modifiable items
  * @param  {Function} isEqual(a, b): Return true if a and b are stricly equal
+ * @param  {Function} getChildren: Return children of an item
  * @return {List<Change>}
  */
-function diff(original, modified, isVariant, isEqual) {
-    original = original.toArray();
-    modified = modified.toArray();
+function diffTree(original, modified, isVariant, isEqual, getChildren) {
+    original = List(original).toArray();
+    modified = List(modified).toArray();
     let subsequence = lcs(original, modified, isVariant);
 
     const result = [];
@@ -77,10 +56,7 @@ function diff(original, modified, isVariant, isEqual) {
                 break;
             }
 
-            result.push(Change.create({
-                type: TYPES.ADDED,
-                modified: mfirst
-            }));
+            result.push(Change.createAddition(mfirst));
         }
 
         while (original.length > 0) {
@@ -89,38 +65,39 @@ function diff(original, modified, isVariant, isEqual) {
                 break;
             }
 
-            result.push(Change.create({
-                type: TYPES.REMOVED,
-                original: ofirst
-            }));
+            result.push(Change.createRemoval(ofirst));
         }
 
-        result.push(Change.create({
-            type: isEqual(sfirst.original, sfirst.modified) ? TYPES.IDENTICAL : TYPES.MODIFIED,
-            original: sfirst.original,
-            modified: sfirst.modified
-        }));
+        const childrenChanges = diffTree(
+            getChildren(sfirst.original),
+            getChildren(sfirst.modified),
+            isVariant, isEqual, getChildren
+        );
+        const areChildrenIdentical = childrenChanges.every(change => change.type == Change.TYPES.IDENTICAL);
+
+        if (areChildrenIdentical && isEqual(sfirst.original, sfirst.modified)) {
+            result.push(Change.createIdentity(sfirst.original));
+        } else {
+            result.push(Change.createUpdate(
+                sfirst.original,
+                sfirst.modified,
+                childrenChanges
+            ));
+        }
     }
 
     while (modified.length > 0) {
         [ mfirst, ...modified ] = modified;
-        result.push(Change.create({
-            type: TYPES.ADDED,
-            modified: mfirst
-        }));
+        result.push(Change.createAddition(mfirst));
     }
 
     while (original.length > 0) {
         [ ofirst, ...original ] = original;
 
-        result.push(Change.create({
-            type: TYPES.REMOVED,
-            original: ofirst
-        }));
+        result.push(Change.createRemoval(ofirst));
     }
 
     return List(result);
 }
 
-module.exports = diff;
-module.exports.TYPES = TYPES;
+module.exports = diffTree;

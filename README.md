@@ -25,11 +25,11 @@ const MyApp = React.createClass({
         const original = state.deserializeToDocument('Hello **World**');
         const modified = state.deserializeToDocument('Hello **World 2**');
 
+        const state = RichDiff.State.create(original, modified);
+
         return (
             <RichDiff
-                wrapIdentiticals={20}
-                original={original}
-                modified={modified}
+                state={state}
             />
         )
     }

@@ -1,27 +1,6 @@
-const React = require('react');
-const ChangeNodes = require('./ChangeNodes');
+const State = require('./diffing/State');
+const RichDiff = require('./components/RichDiff');
 
-/**
- * Component to render the rich diff between two documents.
- * @type {ReactClass}
- */
-const RichDiff = React.createClass({
-    propTypes: {
-        original: React.PropTypes.object.isRequired,
-        modified: React.PropTypes.object.isRequired
-    },
-
-    render() {
-        const { original, modified } = this.props;
-
-        return (
-            <ChangeNodes
-                Wrapper={props => <div className="RichDiff">{props.children}</div>}
-                original={original.nodes}
-                modified={modified.nodes}
-                />
-        );
-    }
-});
+RichDiff.State = State;
 
 module.exports = RichDiff;

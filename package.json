@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint .",
     "prepublish": "rm -rf ./lib; babel --out-dir ./lib ./src",
-    "test": "npm run lint",
+    "test": "./node_modules/.bin/mocha --compilers js:babel-core/register --reporter spec ./test/*.js",
     "postpublish": "npm run build-example-assets; npm run deploy-example",
     "build-example-js": "browserify ./example/main.js -o ./example/bundle.js -t [ babelify --presets [ es2015 react ] ]",
     "build-example": "npm run build-example-js",
@@ -41,10 +41,12 @@
     "browserify": "^13.3.0",
     "eslint": "3.12.2",
     "eslint-config-gitbook": "1.5.0",
+    "expect": "^1.20.2",
     "gh-pages": "^0.12.0",
     "http-server": "^0.9.0",
     "live-server": "^1.2.0",
     "markup-it": "^3.3.1",
+    "mocha": "^3.2.0",
     "react-dom": "^15.4.2",
     "slate": "^0.16.9"
   },
