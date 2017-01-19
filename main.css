@@ -8,7 +8,7 @@
   position: relative;
 }
 .RichDiff > .diff-block-modified:before {
-  position: relative;
+  position: absolute;
   left: -20px;
   content: "";
   top: 0px;
@@ -19,31 +19,31 @@
   position: relative;
 }
 .RichDiff > .diff-block-added:before {
-  position: relative;
+  position: absolute;
   left: -20px;
   content: "";
   top: 0px;
   bottom: 0px;
-  border-left: 4px solid #ffc045;
+  border-left: 4px solid #7fcb5c;
 }
 .RichDiff > .diff-block-removed {
   position: relative;
 }
 .RichDiff > .diff-block-removed:before {
-  position: relative;
+  position: absolute;
   left: -20px;
   content: "";
   top: 0px;
   bottom: 0px;
-  border-left: 4px solid #ffc045;
+  border-left: 4px solid #c94114;
 }
 .RichDiff .diff-block-added,
-.RichDiff .diff-character-added {
+.RichDiff .diff-range-added {
   color: inherit;
   background: #eaffea;
 }
 .RichDiff .diff-block-removed,
-.RichDiff .diff-character-removed {
+.RichDiff .diff-range-removed {
   color: #a33;
   text-decoration: line-through;
   background: #ffeaea;

@@ -60,7 +60,7 @@ var Example = React.createClass({
 
 ReactDOM.render(React.createElement(Example, null), document.getElementById('example'));
 
-},{"../src":463,"markup-it":172,"markup-it/lib/markdown":185,"react":374,"react-dom":219}],2:[function(require,module,exports){
+},{"../src":465,"markup-it":172,"markup-it/lib/markdown":185,"react":374,"react-dom":219}],2:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -77941,23 +77941,15 @@ var ModifiedChange = React.createClass({
             className: classNameForChange(modified, change)
         };
 
-        return original.kind == 'text' ? React.createElement(Changes, {
-            Wrapper: function Wrapper(props) {
-                return React.createElement(
-                    'span',
-                    null,
-                    props.children
-                );
-            },
-            changes: change.children
-        }) : React.createElement(Changes, {
+        return React.createElement(Changes, {
             Wrapper: function Wrapper(props) {
                 return React.createElement(
                     NodeWrapper,
                     {
                         node: modified,
                         original: original,
-                        attributes: attributes },
+                        attributes: attributes
+                    },
                     props.children
                 );
             },
@@ -78027,11 +78019,12 @@ var Changes = React.createClass({
 
 module.exports = Changes;
 
-},{"../diffing/TYPES":459,"./Node":454,"./NodeWrapper":455,"react":374}],454:[function(require,module,exports){
+},{"../diffing/TYPES":460,"./Node":454,"./NodeWrapper":455,"react":374}],454:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
 var NodeWrapper = require('./NodeWrapper');
+var TextRange = require('./TextRange');
 
 /**
  * Render an entire slate node and its children.
@@ -78056,17 +78049,13 @@ var Node = React.createClass({
             attributes = _props.attributes;
 
 
-        if (node.kind == 'character') {
-            return React.createElement(
-                NodeWrapper,
-                { attributes: attributes, node: node },
-                node.text
-            );
+        if (node.kind == 'range') {
+            return React.createElement(TextRange, { attributes: attributes, range: node });
         } else if (node.kind == 'text') {
             return React.createElement(
                 NodeWrapper,
                 { attributes: attributes, node: node },
-                node.characters.map(function (c, i) {
+                node.getRanges().map(function (c, i) {
                     return React.createElement(Node, { key: i, node: c });
                 })
             );
@@ -78084,10 +78073,9 @@ var Node = React.createClass({
 
 module.exports = Node;
 
-},{"./NodeWrapper":455,"react":374}],455:[function(require,module,exports){
+},{"./NodeWrapper":455,"./TextRange":457,"react":374}],455:[function(require,module,exports){
 'use strict';
 
-/* eslint-disable react/prop-types */
 var React = require('react');
 var schema = require('../schema');
 
@@ -78126,7 +78114,7 @@ var NodeWrapper = React.createClass({
 
 module.exports = NodeWrapper;
 
-},{"../schema":468,"react":374}],456:[function(require,module,exports){
+},{"../schema":470,"react":374}],456:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -78171,6 +78159,69 @@ var RichDiff = React.createClass({
 module.exports = RichDiff;
 
 },{"./Changes":453,"react":374}],457:[function(require,module,exports){
+'use strict';
+
+var React = require('react');
+var schema = require('../schema');
+
+/**
+ * Leaf of a document: text range
+ * @type {React}
+ */
+var TextRange = React.createClass({
+    displayName: 'TextRange',
+
+    propTypes: {
+        range: React.PropTypes.object.isRequired,
+        attributes: React.PropTypes.object
+    },
+
+    getDefaultProps: function getDefaultProps() {
+        return {
+            attributes: {}
+        };
+    },
+    render: function render() {
+        var _props = this.props,
+            range = _props.range,
+            attributes = _props.attributes;
+        var marks = range.marks,
+            text = range.text;
+
+
+        if (marks.isEmpty()) {
+            return React.createElement(
+                'span',
+                attributes,
+                range.text
+            );
+        }
+
+        var i = 0;
+        return marks.reduce(function (children, mark) {
+            i++;
+            var Wrapper = schema.marks[mark.type];
+
+            if (i == marks.size) {
+                return React.createElement(
+                    Wrapper,
+                    { attributes: attributes },
+                    children
+                );
+            }
+
+            return React.createElement(
+                Wrapper,
+                null,
+                children
+            );
+        }, text);
+    }
+});
+
+module.exports = TextRange;
+
+},{"../schema":470,"react":374}],458:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -78290,7 +78341,7 @@ var Change = function (_Record) {
 module.exports = Change;
 module.exports.TYPES = TYPES;
 
-},{"./TYPES":459,"immutable":145}],458:[function(require,module,exports){
+},{"./TYPES":460,"immutable":145}],459:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -78315,8 +78366,8 @@ var DEFAULTS = {
 };
 
 function serializeNode(node) {
-    if (node.kind == 'character') {
-        return node.toJSON();
+    if (node.kind == 'range') {
+        return Raw.serializeRange(node, { terse: true });
     } else {
         return Raw.serializeNode(node, { terse: true });
     }
@@ -78364,7 +78415,7 @@ var State = function (_Record) {
 
 module.exports = State;
 
-},{"./diffNodes":460,"immutable":145,"slate":397}],459:[function(require,module,exports){
+},{"./diffNodes":461,"immutable":145,"slate":397}],460:[function(require,module,exports){
 'use strict';
 
 /**
@@ -78380,7 +78431,7 @@ var TYPES = {
 
 module.exports = TYPES;
 
-},{}],460:[function(require,module,exports){
+},{}],461:[function(require,module,exports){
 'use strict';
 
 var Immutable = require('immutable');
@@ -78389,6 +78440,7 @@ var _require = require('markup-it'),
     BLOCKS = _require.BLOCKS;
 
 var diffTree = require('./diffTree');
+var getRangesFromText = require('./getRangesFromText');
 
 /**
  * Diff two tree of nodes. It goes down to the characters.
@@ -78408,7 +78460,7 @@ function diffNodes(original, modified) {
  */
 function getChildren(node) {
     if (node.kind == 'text') {
-        return node.characters;
+        return getRangesFromText(node);
     } else if (node.kind == 'block' || node.kind == 'inline') {
         return node.nodes;
     } else {
@@ -78424,7 +78476,7 @@ function getChildren(node) {
  */
 function isVariant(a, b) {
     // For characters, it's always added/removed
-    if (a.kind == 'character') {
+    if (a.kind == 'range') {
         return isEqual(a, b);
     }
 
@@ -78458,7 +78510,7 @@ function isEqual(a, b) {
             Immutable.is(Immutable.fromJS(a.data.toJS()), Immutable.fromJS(b.data.toJS()));
 
         // Compare the marks and text
-        case 'character':
+        case 'range':
             return Immutable.is(a, b);
 
         // For text node, the changes are in the characters
@@ -78508,7 +78560,7 @@ function isList(type) {
 
 module.exports = diffNodes;
 
-},{"./diffTree":461,"immutable":145,"markup-it":172}],461:[function(require,module,exports){
+},{"./diffTree":462,"./getRangesFromText":463,"immutable":145,"markup-it":172}],462:[function(require,module,exports){
 'use strict';
 
 function _toArray(arr) { return Array.isArray(arr) ? arr : Array.from(arr); }
@@ -78617,7 +78669,42 @@ function diffTree(original, modified, isVariant, isEqual, getChildren) {
 
 module.exports = diffTree;
 
-},{"./Change":457,"./lcs":462,"immutable":145}],462:[function(require,module,exports){
+},{"./Change":458,"./lcs":464,"immutable":145}],463:[function(require,module,exports){
+'use strict';
+
+var _require = require('immutable'),
+    List = _require.List;
+
+/**
+ * Split a text node into a list of range.
+ * Range are defined by common marks and words.
+ *
+ * @param {Text} node
+ * @return {List<Range>}
+ */
+
+
+function getRangesFromText(text) {
+    var ranges = text.getRanges().reduce(function (result, range) {
+        var words = range.text.split(/(\s+)/);
+
+        words.forEach(function (word) {
+            if (!word) {
+                return;
+            }
+
+            result.push(range.set('text', word));
+        });
+
+        return result;
+    }, []);
+
+    return List(ranges);
+}
+
+module.exports = getRangesFromText;
+
+},{"immutable":145}],464:[function(require,module,exports){
 "use strict";
 
 /**
@@ -78708,7 +78795,7 @@ function backtrackLcs(xs, ys, matrix, isEqual) {
 
 module.exports = lcs;
 
-},{}],463:[function(require,module,exports){
+},{}],465:[function(require,module,exports){
 'use strict';
 
 var State = require('./diffing/State');
@@ -78718,7 +78805,7 @@ RichDiff.State = State;
 
 module.exports = RichDiff;
 
-},{"./components/RichDiff":456,"./diffing/State":458}],464:[function(require,module,exports){
+},{"./components/RichDiff":456,"./diffing/State":459}],466:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -78777,7 +78864,7 @@ var HeadingNode = React.createClass({
 
 module.exports = HeadingNode;
 
-},{"classnames":18,"markup-it":172,"react":374}],465:[function(require,module,exports){
+},{"classnames":18,"markup-it":172,"react":374}],467:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -78810,7 +78897,7 @@ var ImageNode = React.createClass({
 
 module.exports = ImageNode;
 
-},{"react":374}],466:[function(require,module,exports){
+},{"react":374}],468:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -78869,7 +78956,7 @@ var LinkNode = React.createClass({
 
 module.exports = LinkNode;
 
-},{"classnames":18,"react":374}],467:[function(require,module,exports){
+},{"classnames":18,"react":374}],469:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -78906,7 +78993,7 @@ var TableNode = React.createClass({
 
 module.exports = TableNode;
 
-},{"react":374}],468:[function(require,module,exports){
+},{"react":374}],470:[function(require,module,exports){
 'use strict';
 
 var _nodes, _marks;
@@ -78928,46 +79015,22 @@ var Image = require('./Image');
 var Link = require('./Link');
 var Table = require('./Table');
 
-function componentFromtag(tagName) {
+function componentFromTag(tagName) {
     return function (props) {
         return React.createElement(tagName, _extends({}, props.attributes), props.children);
     };
 }
 
 var SCHEMA = {
-    defaultBlock: componentFromtag('div'),
-    defaultInline: componentFromtag('span'),
+    defaultBlock: componentFromTag('div'),
+    defaultInline: componentFromTag('span'),
     // Nodes
-    nodes: (_nodes = {}, _defineProperty(_nodes, BLOCKS.PARAGRAPH, componentFromtag('p')), _defineProperty(_nodes, BLOCKS.BLOCKQUOTE, componentFromtag('blockquote')), _defineProperty(_nodes, BLOCKS.HR, function (props) {
+    nodes: (_nodes = {}, _defineProperty(_nodes, BLOCKS.PARAGRAPH, componentFromTag('p')), _defineProperty(_nodes, BLOCKS.BLOCKQUOTE, componentFromTag('blockquote')), _defineProperty(_nodes, BLOCKS.HR, function (props) {
         return React.createElement('hr', props.attributes);
-    }), _defineProperty(_nodes, BLOCKS.CODE, componentFromtag('pre')), _defineProperty(_nodes, BLOCKS.TABLE, Table), _defineProperty(_nodes, BLOCKS.TABLE_ROW, componentFromtag('tr')), _defineProperty(_nodes, BLOCKS.TABLE_CELL, componentFromtag('td')), _defineProperty(_nodes, BLOCKS.UL_LIST, componentFromtag('ul')), _defineProperty(_nodes, BLOCKS.OL_LIST, componentFromtag('ol')), _defineProperty(_nodes, BLOCKS.LIST_ITEM, componentFromtag('li')), _defineProperty(_nodes, BLOCKS.HEADING_1, Heading), _defineProperty(_nodes, BLOCKS.HEADING_2, Heading), _defineProperty(_nodes, BLOCKS.HEADING_3, Heading), _defineProperty(_nodes, BLOCKS.HEADING_4, Heading), _defineProperty(_nodes, BLOCKS.HEADING_5, Heading), _defineProperty(_nodes, BLOCKS.HEADING_6, Heading), _defineProperty(_nodes, INLINES.IMAGE, Image), _defineProperty(_nodes, INLINES.LINK, Link), _nodes),
-    marks: (_marks = {}, _defineProperty(_marks, MARKS.BOLD, function (props) {
-        return React.createElement(
-            'strong',
-            null,
-            props.children
-        );
-    }), _defineProperty(_marks, MARKS.ITALIC, function (props) {
-        return React.createElement(
-            'em',
-            null,
-            props.children
-        );
-    }), _defineProperty(_marks, MARKS.STRIKETHROUGH, function (props) {
-        return React.createElement(
-            'del',
-            null,
-            props.children
-        );
-    }), _defineProperty(_marks, MARKS.CODE, function (props) {
-        return React.createElement(
-            'code',
-            null,
-            props.children
-        );
-    }), _marks)
+    }), _defineProperty(_nodes, BLOCKS.CODE, componentFromTag('pre')), _defineProperty(_nodes, BLOCKS.TABLE, Table), _defineProperty(_nodes, BLOCKS.TABLE_ROW, componentFromTag('tr')), _defineProperty(_nodes, BLOCKS.TABLE_CELL, componentFromTag('td')), _defineProperty(_nodes, BLOCKS.UL_LIST, componentFromTag('ul')), _defineProperty(_nodes, BLOCKS.OL_LIST, componentFromTag('ol')), _defineProperty(_nodes, BLOCKS.LIST_ITEM, componentFromTag('li')), _defineProperty(_nodes, BLOCKS.HEADING_1, Heading), _defineProperty(_nodes, BLOCKS.HEADING_2, Heading), _defineProperty(_nodes, BLOCKS.HEADING_3, Heading), _defineProperty(_nodes, BLOCKS.HEADING_4, Heading), _defineProperty(_nodes, BLOCKS.HEADING_5, Heading), _defineProperty(_nodes, BLOCKS.HEADING_6, Heading), _defineProperty(_nodes, INLINES.IMAGE, Image), _defineProperty(_nodes, INLINES.LINK, Link), _nodes),
+    marks: (_marks = {}, _defineProperty(_marks, MARKS.BOLD, componentFromTag('strong')), _defineProperty(_marks, MARKS.ITALIC, componentFromTag('em')), _defineProperty(_marks, MARKS.STRIKETHROUGH, componentFromTag('del')), _defineProperty(_marks, MARKS.CODE, componentFromTag('code')), _marks)
 };
 
 module.exports = SCHEMA;
 
-},{"./Heading":464,"./Image":465,"./Link":466,"./Table":467,"markup-it":172,"react":374}]},{},[1]);
+},{"./Heading":466,"./Image":467,"./Link":468,"./Table":469,"markup-it":172,"react":374}]},{},[1]);
