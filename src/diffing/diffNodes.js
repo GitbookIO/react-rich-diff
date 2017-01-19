@@ -37,12 +37,12 @@ function getChildren(node) {
  * @return {Boolean}
  */
 function isVariant(a, b) {
-    if (a.kind != b.kind) {
-        return false;
+    // For characters, it's always added/removed
+    if (a.kind == 'character') {
+        return true;
     }
 
-    // For characters, it's aleays added/removed
-    if (a.kind == 'character') {
+    if (a.kind != b.kind) {
         return false;
     }
 
@@ -65,7 +65,6 @@ function isEqual(a, b) {
 
     // Compare the marks and text
     case 'character':
-        console.log('compare character', a, b, Immutable.is(a, b));
         return Immutable.is(a, b);
 
     // For text node, the changes are in the characters

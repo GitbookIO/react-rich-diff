@@ -36,7 +36,8 @@ function runTest(folder) {
     const expectedData = readFileInput(expectedFile);
 
     const state = State.create(original, modified);
-    expect(state.serializeToJSON()).toEqual(expectedData);
+    const stateAsJSON = state.serializeToJSON();
+    expect(stateAsJSON).toEqual(expectedData);
 }
 
 

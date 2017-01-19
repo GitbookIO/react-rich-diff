@@ -8,22 +8,22 @@ const Change = require('./Change');
  * @param  {Array} head
  * @return {Array}
  */
-function lcs(xs, ys, isEqual) {
+function lcs(xs, ys, isVariant) {
     if (xs.length > 0 && ys.length > 0) {
         const [xe, ...xb] = xs;
         const [ye, ...yb] = ys;
 
-        if (isEqual(xe, ye)) {
+        if (isVariant(xe, ye)) {
             return [
                 {
                     original: xe,
                     modified: ye
                 }
-            ].concat(lcs(xb, yb, isEqual));
+            ].concat(lcs(xb, yb, isVariant));
         }
 
-        const a = lcs(xs, yb, isEqual);
-        const b = lcs(xb, ys, isEqual);
+        const a = lcs(xs, yb, isVariant);
+        const b = lcs(xb, ys, isVariant);
         return (a.length > b.length) ? a : b;
     }
 
