@@ -20,7 +20,7 @@ const Node = React.createClass({
     render() {
         const { node, attributes } = this.props;
 
-        if (node.kind == 'character') {
+        if (node.kind == 'range') {
             return (
                 <NodeWrapper attributes={attributes} node={node}>
                     {node.text}
@@ -29,7 +29,7 @@ const Node = React.createClass({
         } else if (node.kind == 'text') {
             return (
                 <NodeWrapper attributes={attributes} node={node}>
-                    {node.characters.map((c, i) => <Node key={i} node={c} />)}
+                    {node.getRanges().map((c, i) => <Node key={i} node={c} />)}
                 </NodeWrapper>
             );
         } else {
