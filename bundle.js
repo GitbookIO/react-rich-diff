@@ -60,7 +60,7 @@ var Example = React.createClass({
 
 ReactDOM.render(React.createElement(Example, null), document.getElementById('example'));
 
-},{"../src":462,"markup-it":172,"markup-it/lib/markdown":185,"react":374,"react-dom":219}],2:[function(require,module,exports){
+},{"../src":463,"markup-it":172,"markup-it/lib/markdown":185,"react":374,"react-dom":219}],2:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -78126,7 +78126,7 @@ var NodeWrapper = React.createClass({
 
 module.exports = NodeWrapper;
 
-},{"../schema":466,"react":374}],456:[function(require,module,exports){
+},{"../schema":468,"react":374}],456:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -78452,7 +78452,10 @@ function isEqual(a, b) {
         // We compare the type and the metadata
         case 'inline':
         case 'block':
-            return a.type == b.type && Immutable.is(a.data, b.data);
+            return a.type == b.type &&
+
+            // Not pretty but work for table with "align" being an array instead of a list
+            Immutable.is(Immutable.fromJS(a.data.toJS()), Immutable.fromJS(b.data.toJS()));
 
         // Compare the marks and text
         case 'character':
@@ -78514,38 +78517,7 @@ var _require = require('immutable'),
     List = _require.List;
 
 var Change = require('./Change');
-
-/**
- * Longest common subsequence
- *
- * @param  {Array} xs, ys
- * @param  {Array} head
- * @return {Array}
- */
-function lcs(xs, ys, isVariant) {
-    if (xs.length > 0 && ys.length > 0) {
-        var _xs = _toArray(xs),
-            xe = _xs[0],
-            xb = _xs.slice(1);
-
-        var _ys = _toArray(ys),
-            ye = _ys[0],
-            yb = _ys.slice(1);
-
-        if (isVariant(xe, ye)) {
-            return [{
-                original: xe,
-                modified: ye
-            }].concat(lcs(xb, yb, isVariant));
-        }
-
-        var a = lcs(xs, yb, isVariant);
-        var b = lcs(xb, ys, isVariant);
-        return a.length > b.length ? a : b;
-    }
-
-    return [];
-}
+var lcs = require('./lcs');
 
 /**
  * Diff two tree of items.
@@ -78645,7 +78617,98 @@ function diffTree(original, modified, isVariant, isEqual, getChildren) {
 
 module.exports = diffTree;
 
-},{"./Change":457,"immutable":145}],462:[function(require,module,exports){
+},{"./Change":457,"./lcs":462,"immutable":145}],462:[function(require,module,exports){
+"use strict";
+
+/**
+ * Returns a two-dimensional array (an array of arrays) with dimensions n by m.
+ * All the elements of this new matrix are initially equal to x
+ * @param n number of rows
+ * @param m number of columns
+ * @param x initial element for every item in matrix
+ */
+function makeMatrix(n, m, x) {
+    var matrix = [];
+    for (var i = 0; i < n; i++) {
+        matrix[i] = new Array(m);
+
+        if (x != null) {
+            for (var j = 0; j < m; j++) {
+                matrix[i][j] = x;
+            }
+        }
+    }
+
+    return matrix;
+}
+
+/**
+ * Computes Longest Common Subsequence between two Immutable.JS Indexed Iterables
+ * Based on Dynamic Programming http://rosettacode.org/wiki/Longest_common_subsequence#Java
+ * @param xs ImmutableJS Indexed Sequence 1
+ * @param ys ImmutableJS Indexed Sequence 2
+ */
+function lcs(xs, ys, isEqual) {
+    var matrix = computeLcsMatrix(xs, ys, isEqual);
+    return backtrackLcs(xs, ys, matrix, isEqual);
+}
+
+/**
+ * Computes the Longest Common Subsequence table
+ * @param xs Indexed Sequence 1
+ * @param ys Indexed Sequence 2
+ */
+function computeLcsMatrix(xs, ys, isEqual) {
+    var n = xs.length || 0;
+    var m = ys.length || 0;
+    var a = makeMatrix(n + 1, m + 1, 0);
+
+    for (var i = 0; i < n; i++) {
+        for (var j = 0; j < m; j++) {
+            if (isEqual(xs[i], ys[j])) {
+                a[i + 1][j + 1] = a[i][j] + 1;
+            } else {
+                a[i + 1][j + 1] = Math.max(a[i + 1][j], a[i][j + 1]);
+            }
+        }
+    }
+
+    return a;
+}
+
+/**
+ * Extracts a LCS from matrix M
+ * @param xs Indexed Sequence 1
+ * @param ys Indexed Sequence 2
+ * @param matrix LCS Matrix
+ * @returns {Array.<T>} Longest Common Subsequence
+ */
+function backtrackLcs(xs, ys, matrix, isEqual) {
+    var result = [];
+    for (var i = xs.length, j = ys.length; i !== 0 && j !== 0;) {
+        if (matrix[i][j] === matrix[i - 1][j]) {
+            i--;
+        } else if (matrix[i][j] === matrix[i][j - 1]) {
+            j--;
+        } else {
+            var xValue = xs[i - 1];
+            var yValue = ys[j - 1];
+            if (isEqual(xValue, yValue)) {
+                result.push({
+                    original: xValue,
+                    modified: yValue
+                });
+                i--;
+                j--;
+            }
+        }
+    }
+    return result.reverse();
+}
+
+module.exports = lcs;
+
+},{}],463:[function(require,module,exports){
 'use strict';
 
 var State = require('./diffing/State');
@@ -78655,7 +78718,7 @@ RichDiff.State = State;
 
 module.exports = RichDiff;
 
-},{"./components/RichDiff":456,"./diffing/State":458}],463:[function(require,module,exports){
+},{"./components/RichDiff":456,"./diffing/State":458}],464:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -78714,7 +78777,7 @@ var HeadingNode = React.createClass({
 
 module.exports = HeadingNode;
 
-},{"classnames":18,"markup-it":172,"react":374}],464:[function(require,module,exports){
+},{"classnames":18,"markup-it":172,"react":374}],465:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -78747,7 +78810,7 @@ var ImageNode = React.createClass({
 
 module.exports = ImageNode;
 
-},{"react":374}],465:[function(require,module,exports){
+},{"react":374}],466:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -78806,7 +78869,44 @@ var LinkNode = React.createClass({
 
 module.exports = LinkNode;
 
-},{"classnames":18,"react":374}],466:[function(require,module,exports){
+},{"classnames":18,"react":374}],467:[function(require,module,exports){
+'use strict';
+
+var React = require('react');
+
+/**
+ * Render a table.
+ * @type {React}
+ */
+var TableNode = React.createClass({
+    displayName: 'TableNode',
+
+    propTypes: {
+        attributes: React.PropTypes.object.isRequired,
+        children: React.PropTypes.node.isRequired
+    },
+
+    render: function render() {
+        var _props = this.props,
+            attributes = _props.attributes,
+            children = _props.children;
+
+
+        return React.createElement(
+            'table',
+            attributes,
+            React.createElement(
+                'tbody',
+                null,
+                children
+            )
+        );
+    }
+});
+
+module.exports = TableNode;
+
+},{"react":374}],468:[function(require,module,exports){
 'use strict';
 
 var _nodes, _marks;
@@ -78826,6 +78926,7 @@ var _require = require('markup-it'),
 var Heading = require('./Heading');
 var Image = require('./Image');
 var Link = require('./Link');
+var Table = require('./Table');
 
 function componentFromtag(tagName) {
     return function (props) {
@@ -78839,7 +78940,7 @@ var SCHEMA = {
     // Nodes
     nodes: (_nodes = {}, _defineProperty(_nodes, BLOCKS.PARAGRAPH, componentFromtag('p')), _defineProperty(_nodes, BLOCKS.BLOCKQUOTE, componentFromtag('blockquote')), _defineProperty(_nodes, BLOCKS.HR, function (props) {
         return React.createElement('hr', props.attributes);
-    }), _defineProperty(_nodes, BLOCKS.CODE, componentFromtag('pre')), _defineProperty(_nodes, BLOCKS.TABLE, componentFromtag('table')), _defineProperty(_nodes, BLOCKS.TABLE_ROW, componentFromtag('tr')), _defineProperty(_nodes, BLOCKS.TABLE_CELL, componentFromtag('td')), _defineProperty(_nodes, BLOCKS.UL_LIST, componentFromtag('ul')), _defineProperty(_nodes, BLOCKS.OL_LIST, componentFromtag('ol')), _defineProperty(_nodes, BLOCKS.LIST_ITEM, componentFromtag('li')), _defineProperty(_nodes, BLOCKS.HEADING_1, Heading), _defineProperty(_nodes, BLOCKS.HEADING_2, Heading), _defineProperty(_nodes, BLOCKS.HEADING_3, Heading), _defineProperty(_nodes, BLOCKS.HEADING_4, Heading), _defineProperty(_nodes, BLOCKS.HEADING_5, Heading), _defineProperty(_nodes, BLOCKS.HEADING_6, Heading), _defineProperty(_nodes, INLINES.IMAGE, Image), _defineProperty(_nodes, INLINES.LINK, Link), _nodes),
+    }), _defineProperty(_nodes, BLOCKS.CODE, componentFromtag('pre')), _defineProperty(_nodes, BLOCKS.TABLE, Table), _defineProperty(_nodes, BLOCKS.TABLE_ROW, componentFromtag('tr')), _defineProperty(_nodes, BLOCKS.TABLE_CELL, componentFromtag('td')), _defineProperty(_nodes, BLOCKS.UL_LIST, componentFromtag('ul')), _defineProperty(_nodes, BLOCKS.OL_LIST, componentFromtag('ol')), _defineProperty(_nodes, BLOCKS.LIST_ITEM, componentFromtag('li')), _defineProperty(_nodes, BLOCKS.HEADING_1, Heading), _defineProperty(_nodes, BLOCKS.HEADING_2, Heading), _defineProperty(_nodes, BLOCKS.HEADING_3, Heading), _defineProperty(_nodes, BLOCKS.HEADING_4, Heading), _defineProperty(_nodes, BLOCKS.HEADING_5, Heading), _defineProperty(_nodes, BLOCKS.HEADING_6, Heading), _defineProperty(_nodes, INLINES.IMAGE, Image), _defineProperty(_nodes, INLINES.LINK, Link), _nodes),
     marks: (_marks = {}, _defineProperty(_marks, MARKS.BOLD, function (props) {
         return React.createElement(
             'strong',
@@ -78869,4 +78970,4 @@ var SCHEMA = {
 
 module.exports = SCHEMA;
 
-},{"./Heading":463,"./Image":464,"./Link":465,"markup-it":172,"react":374}]},{},[1]);
+},{"./Heading":464,"./Image":465,"./Link":466,"./Table":467,"markup-it":172,"react":374}]},{},[1]);

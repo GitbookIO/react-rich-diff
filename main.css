@@ -1,37 +1,54 @@
 .RichDiff {
-    position: relative;
-    padding: 10px;
+  position: relative;
+  padding: 20px;
+  /* First level blocks */
+  /* Tables */
 }
-
-
-/* First level block */
 .RichDiff > .diff-block-modified {
-    border-left: 4px solid #ffc045;
+  position: relative;
+}
+.RichDiff > .diff-block-modified:before {
+  position: relative;
+  left: -20px;
+  content: "";
+  top: 0px;
+  bottom: 0px;
+  border-left: 4px solid #ffc045;
 }
 .RichDiff > .diff-block-added {
-    border-left: 4px solid #7fcb5c;
+  position: relative;
+}
+.RichDiff > .diff-block-added:before {
+  position: relative;
+  left: -20px;
+  content: "";
+  top: 0px;
+  bottom: 0px;
+  border-left: 4px solid #ffc045;
 }
 .RichDiff > .diff-block-removed {
-    border-left: 4px solid #c94114;
+  position: relative;
 }
-
-.diff-block-added {
-    background: #eaffea;
+.RichDiff > .diff-block-removed:before {
+  position: relative;
+  left: -20px;
+  content: "";
+  top: 0px;
+  bottom: 0px;
+  border-left: 4px solid #ffc045;
 }
-
-.diff-block-removed {
-    color: #a33;
-    text-decoration: line-through;
-    background: #ffeaea;
+.RichDiff .diff-block-added,
+.RichDiff .diff-character-added {
+  color: inherit;
+  background: #eaffea;
 }
-
-
-.diff-character-removed {
-    color: #a33;
-    text-decoration: line-through;
-    background: #ffeaea;
+.RichDiff .diff-block-removed,
+.RichDiff .diff-character-removed {
+  color: #a33;
+  text-decoration: line-through;
+  background: #ffeaea;
 }
-
-.diff-character-added {
-    background: #eaffea;
+.RichDiff td.diff-block-modified {
+  color: inherit;
+  background: #ffffea;
 }
