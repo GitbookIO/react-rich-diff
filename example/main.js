@@ -24,7 +24,9 @@ const Example = React.createClass({
         const originalDocument = parse(original);
         const modifiedDocument = parse(modified);
 
-        const state = RichDiff.State.create(original, modified);
+        const state = RichDiff.State.create(originalDocument, modifiedDocument);
+
+        console.log(state.toJS());
 
         return (
             <div>

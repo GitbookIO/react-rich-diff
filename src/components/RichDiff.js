@@ -7,12 +7,23 @@ const Changes = require('./Changes');
  */
 const RichDiff = React.createClass({
     propTypes: {
-        state: React.PropTypes.object.isRequired
+        className: React.PropTypes.string,
+        state:     React.PropTypes.object.isRequired
+    },
+
+    getDefaultProps() {
+        return {
+            className: ''
+        };
     },
 
     render() {
-        const { state } = this.props;
-        return <Changes changes={state.changes} />;
+        const { state, className } = this.props;
+
+        return (<Changes
+            Wrapper={props => <div className={'RichDiff ' + className}>{props.children}</div>}
+            changes={state.changes}
+            />);
     }
 });
 
