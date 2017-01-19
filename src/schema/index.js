@@ -3,6 +3,8 @@ const React = require('react');
 const { BLOCKS, MARKS, INLINES } = require('markup-it');
 
 const Heading = require('./Heading');
+const Image = require('./Image');
+const Link = require('./Link');
 
 function componentFromtag(tagName) {
     return (props) => {
@@ -37,8 +39,8 @@ const SCHEMA = {
         [BLOCKS.HEADING_5]:  Heading,
         [BLOCKS.HEADING_6]:  Heading,
         // Inline
-        [INLINES.IMAGE]:     (props => <img src={props.node.data.get('src')} />),
-        [INLINES.LINK]:      (props => <a href={props.node.data.get('href')}>{props.children}</a>)
+        [INLINES.IMAGE]:     Image,
+        [INLINES.LINK]:      Link
     },
     marks: {
         [MARKS.BOLD]:          (props => <strong>{props.children}</strong>),
