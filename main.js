@@ -24,6 +24,9 @@ const Example = React.createClass({
         const originalDocument = parse(original);
         const modifiedDocument = parse(modified);
 
+        const state = RichDiff.State.create(originalDocument, modifiedDocument);
+
+        console.log(state.toJS());
 
         return (
             <div>
@@ -36,8 +39,7 @@ const Example = React.createClass({
                     onChange={e => this.setState({ modified: e.target.value })}
                     />
                 <RichDiff
-                    original={originalDocument}
-                    modified={modifiedDocument}
+                    state={state}
                     />
             </div>
         );

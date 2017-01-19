@@ -1,16 +1,27 @@
+.RichDiff {
+    position: relative;
+    padding: 10px;
+}
+
+
+/* First level block */
+.RichDiff > .diff-block-modified {
+    border-left: 4px solid #ffc045;
+}
+.RichDiff > .diff-block-added {
+    border-left: 4px solid #7fcb5c;
+}
+.RichDiff > .diff-block-removed {
+    border-left: 4px solid #c94114;
+}
+
+
 .diff-character-removed {
-    color: red;
+    color: #a33;
+    text-decoration: line-through;
+    background: #ffeaea;
 }
 
 .diff-character-added {
-    color: green;
-}
-
-
-.diff-inline-removed, .diff-block-removed {
-    outline: 2px solid red;
-}
-
-.diff-block-added, .diff-block-removed {
-    outline: 2px solid green;
+    background: #eaffea;
 }
