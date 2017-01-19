@@ -7,7 +7,7 @@
     "lint": "eslint .",
     "prepublish": "rm -rf ./lib; babel --out-dir ./lib ./src",
     "test": "./node_modules/.bin/mocha --compilers js:babel-core/register --reporter spec ./test/*.js",
-    "postpublish": "npm run build-example-assets; npm run deploy-example",
+    "postpublish": "npm run deploy-example",
     "build-example-js": "browserify ./example/main.js -o ./example/bundle.js -t [ babelify --presets [ es2015 react ] ]",
     "build-example": "npm run build-example-js",
     "serve-example": "live-server ./example/ --no-browser --port=8081",

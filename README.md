@@ -30,7 +30,7 @@ const MyApp = React.createClass({
         return (
             <RichDiff
                 state={state}
-            />
+                />
         )
     }
 })
