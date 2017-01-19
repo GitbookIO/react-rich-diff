@@ -3,7 +3,10 @@ const React = require('react');
 const TYPES = require('../diffing/TYPES');
 const Node = require('./Node');
 const NodeWrapper = require('./NodeWrapper');
-const ChangeIndicator = require('./ChangeIndicator');
+
+function classNameForChange(node, change) {
+    return `diff-${change.type} diff-${node.kind}-${change.type}`;
+}
 
 /**
  * Render a change without changed
@@ -32,11 +35,12 @@ const AddedRemovedChange = React.createClass({
     render() {
         const { change } = this.props;
         const node = change.type == TYPES.ADDED ? change.modified : change.original;
+        const attributes = {
+            className: classNameForChange(node, change)
+        };
 
         return (
-            <ChangeIndicator type={change.type} kind={node.kind}>
-                <Node node={node} />
-            </ChangeIndicator>
+            <Node attributes={attributes} node={node} />
         );
     }
 });
@@ -53,21 +57,25 @@ const ModifiedChange = React.createClass({
     render() {
         const { change } = this.props;
         const { original, modified } = change;
+        const attributes = {
+            className: classNameForChange(modified, change)
+        };
 
         return (
-            <ChangeIndicator type={change.type} kind={original.kind}>
-                {original.kind == 'text' ? (
-                    <Changes
-                        Wrapper={props => <span>{props.children}</span>}
-                        changes={change.children}
-                        />
-                ) : (
-                    <Changes
-                        Wrapper={props => <NodeWrapper node={modified}>{props.children}</NodeWrapper>}
-                        changes={change.children}
-                        />
-                )}
-            </ChangeIndicator>
+            original.kind == 'text' ? (
+                <Changes
+                    Wrapper={props => <span>{props.children}</span>}
+                    changes={change.children}
+                    />
+            ) : (
+                <Changes
+                    Wrapper={props => (<NodeWrapper
+                        node={modified}
+                        original={original}
+                        attributes={attributes}>{props.children}</NodeWrapper>)}
+                    changes={change.children}
+                    />
+            )
         );
     }
 });

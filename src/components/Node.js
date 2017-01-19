@@ -7,23 +7,34 @@ const NodeWrapper = require('./NodeWrapper');
  */
 const Node = React.createClass({
     propTypes: {
-        node: React.PropTypes.object.isRequired
+        node:       React.PropTypes.object.isRequired,
+        attributes: React.PropTypes.object
+    },
+
+    getDefaultProps() {
+        return {
+            attributes: {}
+        };
     },
 
     render() {
-        const { node } = this.props;
+        const { node, attributes } = this.props;
 
         if (node.kind == 'character') {
-            return <span>{node.text}</span>;
+            return (
+                <NodeWrapper attributes={attributes} node={node}>
+                    {node.text}
+                </NodeWrapper>
+            );
         } else if (node.kind == 'text') {
             return (
-                <span>
+                <NodeWrapper attributes={attributes} node={node}>
                     {node.characters.map((c, i) => <Node key={i} node={c} />)}
-                </span>
+                </NodeWrapper>
             );
         } else {
             return (
-                <NodeWrapper node={node}>
+                <NodeWrapper attributes={attributes} node={node}>
                     {node.nodes.map(c => <Node key={c.key} node={c} />)}
                 </NodeWrapper>
             );
