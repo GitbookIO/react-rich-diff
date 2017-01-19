@@ -9,7 +9,8 @@
     "test": "./node_modules/.bin/mocha --compilers js:babel-core/register --reporter spec ./test/*.js",
     "postpublish": "npm run deploy-example",
     "build-example-js": "browserify ./example/main.js -o ./example/bundle.js -t [ babelify --presets [ es2015 react ] ]",
-    "build-example": "npm run build-example-js",
+    "build-example-css": "lessc ./stylesheets/main.less > ./example/main.css",
+    "build-example": "npm run build-example-css && npm run build-example-js",
     "serve-example": "live-server ./example/ --no-browser --port=8081",
     "start": "npm run build-example && npm run serve-example",
     "deploy-example": "npm run build-example && gh-pages -d ./example"
@@ -45,6 +46,7 @@
     "gh-pages": "^0.12.0",
     "http-server": "^0.9.0",
     "js-yaml": "^3.7.0",
+    "less": "^2.7.2",
     "live-server": "^1.2.0",
     "markup-it": "^3.3.1",
     "mocha": "^3.2.0",

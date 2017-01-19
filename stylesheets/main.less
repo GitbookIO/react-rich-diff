@@ -1,141 +1,54 @@
-.WYSIWYGEditor {
-    border-radius: @gb-border-radius-small;
-    font-size: 1.1rem;
-    border: 1px solid @gb-form-control-border;
-    background: @gb-form-control-background;
-    outline: none;
-    color: @gb-form-control-color;
+@richdiff-added-border-color:        #7fcb5c;
+@richdiff-added-background-color:    #eaffea;
+@richdiff-added-text-color:          inherit;
+@richdiff-modified-border-color:     #ffc045;
+@richdiff-modified-background-color: #ffffea;
+@richdiff-modified-text-color:       inherit;
+@richdiff-removed-border-color:      #c94114;
+@richdiff-removed-background-color:  #ffeaea;
+@richdiff-removed-text-color:        #a33;
+@richdiff-padding:                   20px;
 
-    &:focus, &.focus {
-        outline: none;
-        border-color: @gb-form-control-active-border;
-        background: @gb-form-control-active-background;
+.RichDiff {
+    position: relative;
+    padding: @richdiff-padding;
 
-        .WYSIWYGEditor-Toolbar {
-            opacity: 1;
-        }
-    }
-
-    &:disabled, &.disabled {
-        border-color: @gb-form-control-disabled-border;
-        background: @gb-form-control-disabled-background;
-    }
-
-    .WYSIWYGEditor-Toolbar {
-        opacity: 0.5;
-        padding: @gb-padding-base-vertical @gb-padding-base-horizontal;
-    }
-
-    .WYSIWYGEditor-Content {
-        position: relative;
-        padding: @gb-padding-base-vertical @gb-padding-base-horizontal;
-        user-select: text;
-        cursor: text;
-
-        .WYSIWYGEditor-SlateEditor {
+    .firstLevel-block(@color) {
+        &:before {
             position: relative;
-            z-index: 2;
-            overflow: visible;
-
-            table > {
-                border-top: 1px solid #ccc;
-
-                tbody > {
-                    tr {
-                        background-color: #fff;
-                        border: none;
-                        border-bottom: 1px solid #ccc;
-                        border-right: 1px solid #ccc;
-                        display: flex;
-                        flex-direction: row;
-                        flex-wrap: nowrap;
-
-                        td {
-                            flex: 1;
-                            word-break: break-all;
-                            border-left: 1px solid #ccc;
-                            border-top: none;
-                            border-bottom: none;
-                            border-right: none;
-                        }
-
-                        // Header
-                        &:first-child {
-                            background: @gb-table-header-background;
-                            font-weight: @gb-font-weight-bold;
-                        }
-
-                        &:nth-child(2n) {
-                            background-color: #fff;
-                        }
-                        &:nth-child(2n+1) {
-                            background-color: #f8f8f8;
-                        }
-                    }
-                }
-            }
-        }
-
-        .WYSIWYGEditor-Placeholder {
-            color: #ccc;
-            position: absolute;
-            top: (@gb-padding-base-vertical + 3px);
-            z-index: 1;
+            left: -@richdiff-padding;
+            content: "";
+            height: 100%;
+            border-left: 4px solid #ffc045;
         }
     }
 
-    .WYSIWYGEditor-ImageNode {
-        display: inline-block;
 
-        &.selected {
-            outline: 2px solid @gb-brand-primary;
-        }
+    /* First level blocks */
+    > .diff-block-modified {
+        .firstLevel-block(@richdiff-modified-border-color);
+    }
+    > .diff-block-added {
+        .firstLevel-block(@richdiff-added-border-color);
+    }
+    > .diff-block-removed {
+        .firstLevel-block(@richdiff-removed-border-color);
     }
 
-    .WYSIWYGEditor-HRNode {
-        &.selected {
-            outline: 2px solid @gb-brand-primary;
-        }
+    .diff-block-added, .diff-character-added {
+        color: @richdiff-added-text-color;
+        background: @richdiff-added-background-color;
     }
 
-    .WYSIWYGEditor-TaskListItem {
-        list-style: none;
-        display: flex;
-        margin-left: -18px;
-
-        .TaskListItem-Checkbox {
-            flex: 0;
-            padding-right: 10px;
-        }
-
-        .ListItem-Content {
-            flex: 1;
-        }
+    .diff-block-removed, .diff-character-removed {
+        color: @richdiff-removed-text-color;
+        text-decoration: line-through;
+        background: @richdiff-removed-background-color;
     }
 
-    .WYSIWYGEditor-EmojisButton {
-        ul {
-            padding: 5px;
-        }
-
-        .dropdown-menu > li, .dropdown .dropdown-menu > li {
-            display: inline-block;
-
-            &.dropdown-header {
-                display: block;
-                margin-bottom: 8px;
-            }
-
-            a {
-                display: inline-block;
-                border-radius: 3px;
-                .transition(~"transform ease 0.12s");
-
-                &:hover, &.active {
-                    background: none;
-                    .transform(~"scale(1.7)");
-                }
-            }
-        }
+    /* Tables */
+    .td.diff-block-modified {
+        color: @richdiff-modified-text-color;
+        background: @richdiff-modified-background-color;
     }
 }
