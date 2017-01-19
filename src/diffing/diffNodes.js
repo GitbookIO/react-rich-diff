@@ -1,4 +1,6 @@
 const Immutable = require('immutable');
+const { BLOCKS } = require('markup-it');
+
 const diffTree = require('./diffTree');
 
 /**
@@ -46,7 +48,7 @@ function isVariant(a, b) {
         return false;
     }
 
-    return (a.type == b.type);
+    return isTypeEqual(a.type, b.type);
 }
 
 /**
@@ -74,6 +76,53 @@ function isEqual(a, b) {
     default:
         throw new Error('Invalid kind for isEqual: ' + a.kind);
     }
+}
+
+/**
+ * Check if node types are equal.
+ * @param  {String} a
+ * @param  {String} b
+ * @return {Boolean}
+ */
+function isTypeEqual(a, b) {
+    if (isHeading(a) && isHeading(b)) {
+        return true;
+    }
+
+    if (isList(a) & isList(b)) {
+        return true;
+    }
+
+    return a == b;
+}
+
+/**
+ * Check if node type is an heading
+ * @param  {String} type
+ * @return {Boolean}
+ */
+function isHeading(type) {
+    return [
+        BLOCKS.HEADING_1,
+        BLOCKS.HEADING_2,
+        BLOCKS.HEADING_3,
+        BLOCKS.HEADING_4,
+        BLOCKS.HEADING_5,
+        BLOCKS.HEADING_6
+    ].includes(type);
+}
+
+
+/**
+ * Check if node type is a list.
+ * @param  {String} type
+ * @return {Boolean}
+ */
+function isList(type) {
+    return [
+        BLOCKS.UL_LIST,
+        BLOCKS.OL_LIST
+    ].includes(type);
 }
 
 module.exports = diffNodes;
