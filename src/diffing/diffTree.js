@@ -1,39 +1,6 @@
 const { List } = require('immutable');
 const Change = require('./Change');
-
-/**
- * Longest common subsequence
- *
- * @param  {Array} xs, ys
- * @param  {Array} head
- * @return {Array}
- */
-function lcs(xs, ys, isVariant, iter = 0) {
-    if (xs.length == 0 || ys.length == 0) {
-        return [];
-    }
-
-    const [xFirst, ...xRest] = xs;
-    const [yFirst, ...yRest] = ys;
-
-    console.log(`lcs iter=${iter} xs=${xs.length} ys=${ys.length} xRest=${xRest.length} yRest=${yRest.length}`);
-
-    if (isVariant(xFirst, yFirst)) {
-        console.log(' -> isVariant');
-        return [
-            {
-                original: xFirst,
-                modified: yFirst
-            }
-        ].concat(lcs(xRest, yRest, isVariant, iter + 1));
-    }
-
-
-    console.log(' -> other');
-    const a = lcs(xs, yRest, isVariant, iter + 1);
-    const b = lcs(xRest, ys, isVariant, iter + 1);
-    return (a.length > b.length) ? a : b;
-}
+const lcs = require('./lcs');
 
 /**
  * Diff two tree of items.
@@ -47,7 +14,6 @@ function lcs(xs, ys, isVariant, iter = 0) {
 function diffTree(original, modified, isVariant, isEqual, getChildren) {
     original = List(original).toArray();
     modified = List(modified).toArray();
-    console.log('\nCALL LCS');
     let subsequence = lcs(original, modified, isVariant);
 
     const result = [];
