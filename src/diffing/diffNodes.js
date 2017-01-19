@@ -68,7 +68,15 @@ function isEqual(a, b) {
     // We compare the type and the metadata
     case 'inline':
     case 'block':
-        return a.type == b.type && Immutable.is(a.data, b.data);
+        return (
+            a.type == b.type &&
+
+            // Not pretty but work for table with "align" being an array instead of a list
+            Immutable.is(
+                Immutable.fromJS(a.data.toJS()),
+                Immutable.fromJS(b.data.toJS())
+            )
+        );
 
     // Compare the marks and text
     case 'character':
