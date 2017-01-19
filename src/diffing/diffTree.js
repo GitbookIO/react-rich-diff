@@ -8,26 +8,26 @@ const Change = require('./Change');
  * @param  {Array} head
  * @return {Array}
  */
-function lcs(xs, ys, isVariant) {
-    if (xs.length > 0 && ys.length > 0) {
-        const [xe, ...xb] = xs;
-        const [ye, ...yb] = ys;
-
-        if (isVariant(xe, ye)) {
-            return [
-                {
-                    original: xe,
-                    modified: ye
-                }
-            ].concat(lcs(xb, yb, isVariant));
-        }
-
-        const a = lcs(xs, yb, isVariant);
-        const b = lcs(xb, ys, isVariant);
-        return (a.length > b.length) ? a : b;
+function lcs(xs, ys, isVariant, iter = 0) {
+    if (xs.length == 0 || ys.length == 0) {
+        return [];
     }
 
-    return [];
+    const [xFirst, ...xRest] = xs;
+    const [yFirst, ...yRest] = ys;
+
+    if (isVariant(xFirst, yFirst)) {
+        return [
+            {
+                original: xFirst,
+                modified: yFirst
+            }
+        ].concat(lcs(xRest, yRest, isVariant, iter + 1));
+    }
+
+    const a = lcs(xs, yRest, isVariant, iter + 1);
+    const b = lcs(xRest, ys, isVariant, iter + 1);
+    return (a.length > b.length) ? a : b;
 }
 
 /**
