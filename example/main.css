@@ -14,3 +14,7 @@
 .diff-block-added, .diff-block-removed {
     outline: 2px solid green;
 }
+
+.diff-block-modified {
+    border-left: 3px solid orange;
+}

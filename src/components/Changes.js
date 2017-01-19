@@ -54,23 +54,21 @@ const ModifiedChange = React.createClass({
         const { change } = this.props;
         const { original, modified } = change;
 
-        if (original.kind == 'text') {
-            return (
-                <Changes
-                    Wrapper={props => <span>{props.children}</span>}
-                    original={original.characters}
-                    modified={modified.characters}
-                    />
-            );
-        } else {
-            return (
-                <Changes
-                    Wrapper={props => <NodeWrapper node={original}>{props.children}</NodeWrapper>}
-                    original={original.nodes}
-                    modified={modified.nodes}
-                    />
-            );
-        }
+        return (
+            <ChangeIndicator type={change.type} kind={original.kind}>
+                {original.kind == 'text' ? (
+                    <Changes
+                        Wrapper={props => <span>{props.children}</span>}
+                        changes={change.children}
+                        />
+                ) : (
+                    <Changes
+                        Wrapper={props => <NodeWrapper node={modified}>{props.children}</NodeWrapper>}
+                        changes={change.children}
+                        />
+                )}
+            </ChangeIndicator>
+        );
     }
 });
 

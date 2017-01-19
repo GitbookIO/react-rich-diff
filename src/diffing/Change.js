@@ -4,6 +4,7 @@ const TYPES = require('./TYPES');
 let KEY = 0;
 
 const DEFAULTS = {
+    key:      String(),
     type:     String(TYPES.IDENTICAL),
     original: null,
     modified: null,
@@ -14,7 +15,7 @@ class Change extends Record(DEFAULTS) {
 
     static create(props) {
         return new Change({
-            key: (KEY++),
+            key: String(KEY++),
             ...props
         });
     }
