@@ -58,12 +58,19 @@ function isVariant(a, b) {
 function isEqual(a, b) {
     switch (a.kind) {
 
+    // We compare the type and the metadata
     case 'inline':
     case 'block':
         return a.type == b.type && Immutable.is(a.data, b.data);
 
+    // Compare the marks and text
     case 'character':
+        console.log('compare character', a, b, Immutable.is(a, b));
         return Immutable.is(a, b);
+
+    // For text node, the changes are in the characters
+    case 'text':
+        return true;
 
     default:
         throw new Error('Invalid kind for isEqual: ' + a.kind);

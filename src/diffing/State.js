@@ -1,11 +1,29 @@
 const { List, Record } = require('immutable');
 const diffNodes = require('./diffNodes');
+const { Raw } = require('slate');
 
 const DEFAULTS = {
     changes: List()
 };
 
+function serializeNode(node) {
+    if (node.kind == 'character') {
+        return node.toJSON();
+    }
+    else {
+        return Raw.serializeNode(node, { terse: true });
+    }
+}
+
 class State extends Record(DEFAULTS) {
+    serializeToJSON() {
+        const { changes } = this;
+        return {
+            changes: changes
+                .map(child => child.serializeToJSON(serializeNode))
+                .toArray()
+        };
+    }
 
     /**
      * Create a diff state from two document.

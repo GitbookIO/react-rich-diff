@@ -1,4 +1,5 @@
 const { List, Record } = require('immutable');
+
 const TYPES = require('./TYPES');
 
 let KEY = 0;
@@ -12,6 +13,31 @@ const DEFAULTS = {
 };
 
 class Change extends Record(DEFAULTS) {
+
+    serializeToJSON(serializeNode) {
+        const { type, original, modified, children } = this;
+
+        switch (type) {
+        case TYPES.REMOVED:
+        case TYPES.IDENTICAL:
+            return {
+                type,
+                original: serializeNode(original)
+            };
+        case TYPES.ADDED:
+            return {
+                type,
+                modified: serializeNode(modified)
+            };
+        case TYPES.MODIFIED:
+            return {
+                type,
+                original: serializeNode(original),
+                modified: serializeNode(modified),
+                children: children.map(child => child.serializeToJSON(serializeNode)).toArray()
+            };
+        }
+    }
 
     static create(props) {
         return new Change({
