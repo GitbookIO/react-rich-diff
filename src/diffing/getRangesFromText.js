@@ -10,7 +10,7 @@ const { List } = require('immutable');
 function getRangesFromText(text) {
     const ranges = text.getRanges()
     .reduce((result, range) => {
-        const words = range.text.split(' ');
+        const words = range.text.split(/(\s+)/);
 
         words.forEach((word) => {
             if (!word) {
