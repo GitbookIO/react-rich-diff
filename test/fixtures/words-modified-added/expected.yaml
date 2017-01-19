@@ -1,0 +1,35 @@
+changes:
+    - type: modified
+      original:
+        kind: block
+        type: paragraph
+        nodes:
+            - kind: text
+              text: Helo World
+      modified:
+        kind: block
+        type: paragraph
+        nodes:
+            - kind: text
+              text: Hello World
+      children:
+        - type: modified
+          original:
+            kind: text
+            text: "Helo World"
+          modified:
+            kind: text
+            text: "Hello World"
+          children:
+            - type: added
+              modified:
+                text: Hello
+            - type: removed
+              original:
+                text: Helo
+            - type: identical
+              original:
+                text: " "
+            - type: identical
+              original:
+                text: World

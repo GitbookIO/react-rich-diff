@@ -20,10 +20,12 @@ const RichDiff = React.createClass({
     render() {
         const { state, className } = this.props;
 
-        return (<Changes
-            Wrapper={props => <div className={'RichDiff ' + className}>{props.children}</div>}
-            changes={state.changes}
-            />);
+        return (
+            <Changes
+                Wrapper={props => <div className={'RichDiff ' + className}>{props.children}</div>}
+                changes={state.changes}
+            />
+        );
     }
 });
 

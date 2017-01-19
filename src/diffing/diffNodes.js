@@ -2,6 +2,7 @@ const Immutable = require('immutable');
 const { BLOCKS } = require('markup-it');
 
 const diffTree = require('./diffTree');
+const getRangesFromText = require('./getRangesFromText');
 
 /**
  * Diff two tree of nodes. It goes down to the characters.
@@ -24,7 +25,7 @@ function diffNodes(original, modified) {
  */
 function getChildren(node) {
     if (node.kind == 'text') {
-        return node.characters;
+        return getRangesFromText(node);
     } else if (node.kind == 'block' || node.kind == 'inline') {
         return node.nodes;
     } else {
@@ -40,7 +41,7 @@ function getChildren(node) {
  */
 function isVariant(a, b) {
     // For characters, it's always added/removed
-    if (a.kind == 'character') {
+    if (a.kind == 'range') {
         return isEqual(a, b);
     }
 
@@ -79,7 +80,7 @@ function isEqual(a, b) {
         );
 
     // Compare the marks and text
-    case 'character':
+    case 'range':
         return Immutable.is(a, b);
 
     // For text node, the changes are in the characters

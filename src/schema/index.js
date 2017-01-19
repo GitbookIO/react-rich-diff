@@ -7,7 +7,7 @@ const Image = require('./Image');
 const Link = require('./Link');
 const Table = require('./Table');
 
-function componentFromtag(tagName) {
+function componentFromTag(tagName) {
     return (props) => {
         return React.createElement(tagName, {
             ...props.attributes
@@ -16,22 +16,22 @@ function componentFromtag(tagName) {
 }
 
 const SCHEMA = {
-    defaultBlock:  componentFromtag('div'),
-    defaultInline: componentFromtag('span'),
+    defaultBlock:  componentFromTag('div'),
+    defaultInline: componentFromTag('span'),
     // Nodes
     nodes: {
-        [BLOCKS.PARAGRAPH]:  componentFromtag('p'),
-        [BLOCKS.BLOCKQUOTE]: componentFromtag('blockquote'),
+        [BLOCKS.PARAGRAPH]:  componentFromTag('p'),
+        [BLOCKS.BLOCKQUOTE]: componentFromTag('blockquote'),
         [BLOCKS.HR]:         (props => <hr {...props.attributes} />),
-        [BLOCKS.CODE]:       componentFromtag('pre'),
+        [BLOCKS.CODE]:       componentFromTag('pre'),
         // Tables
         [BLOCKS.TABLE]:      Table,
-        [BLOCKS.TABLE_ROW]:  componentFromtag('tr'),
-        [BLOCKS.TABLE_CELL]: componentFromtag('td'),
+        [BLOCKS.TABLE_ROW]:  componentFromTag('tr'),
+        [BLOCKS.TABLE_CELL]: componentFromTag('td'),
         // Lists
-        [BLOCKS.UL_LIST]:    componentFromtag('ul'),
-        [BLOCKS.OL_LIST]:    componentFromtag('ol'),
-        [BLOCKS.LIST_ITEM]:  componentFromtag('li'),
+        [BLOCKS.UL_LIST]:    componentFromTag('ul'),
+        [BLOCKS.OL_LIST]:    componentFromTag('ol'),
+        [BLOCKS.LIST_ITEM]:  componentFromTag('li'),
         // Headings
         [BLOCKS.HEADING_1]:  Heading,
         [BLOCKS.HEADING_2]:  Heading,
@@ -44,10 +44,10 @@ const SCHEMA = {
         [INLINES.LINK]:      Link
     },
     marks: {
-        [MARKS.BOLD]:          (props => <strong>{props.children}</strong>),
-        [MARKS.ITALIC]:        (props => <em>{props.children}</em>),
-        [MARKS.STRIKETHROUGH]: (props => <del>{props.children}</del>),
-        [MARKS.CODE]:          (props => <code>{props.children}</code>)
+        [MARKS.BOLD]:          componentFromTag('strong'),
+        [MARKS.ITALIC]:        componentFromTag('em'),
+        [MARKS.STRIKETHROUGH]: componentFromTag('del'),
+        [MARKS.CODE]:          componentFromTag('code')
     }
 };
 

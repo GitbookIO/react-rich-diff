@@ -7,8 +7,8 @@ const DEFAULTS = {
 };
 
 function serializeNode(node) {
-    if (node.kind == 'character') {
-        return node.toJSON();
+    if (node.kind == 'range') {
+        return Raw.serializeRange(node, { terse: true });
     }
     else {
         return Raw.serializeNode(node, { terse: true });

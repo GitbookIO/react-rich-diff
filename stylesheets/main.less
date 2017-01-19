@@ -17,12 +17,12 @@
         position: relative;
 
         &:before {
-            position: relative;
+            position: absolute;
             left: -@richdiff-padding;
             content: "";
             top: 0px;
             bottom: 0px;
-            border-left: 4px solid #ffc045;
+            border-left: 4px solid @color;
         }
     }
 
@@ -38,12 +38,12 @@
         .firstLevel-block(@richdiff-removed-border-color);
     }
 
-    .diff-block-added, .diff-character-added {
+    .diff-block-added, .diff-range-added {
         color: @richdiff-added-text-color;
         background: @richdiff-added-background-color;
     }
 
-    .diff-block-removed, .diff-character-removed {
+    .diff-block-removed, .diff-range-removed {
         color: @richdiff-removed-text-color;
         text-decoration: line-through;
         background: @richdiff-removed-background-color;
