@@ -62,20 +62,15 @@ const ModifiedChange = React.createClass({
         };
 
         return (
-            original.kind == 'text' ? (
-                <Changes
-                    Wrapper={props => <span>{props.children}</span>}
-                    changes={change.children}
-                    />
-            ) : (
-                <Changes
-                    Wrapper={props => (<NodeWrapper
+            <Changes
+                Wrapper={props => (
+                    <NodeWrapper
                         node={modified}
                         original={original}
-                        attributes={attributes}>{props.children}</NodeWrapper>)}
-                    changes={change.children}
-                    />
-            )
+                        attributes={attributes}
+                    >{props.children}</NodeWrapper>)}
+                changes={change.children}
+                />
         );
     }
 });

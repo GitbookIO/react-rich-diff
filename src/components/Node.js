@@ -1,5 +1,6 @@
 const React = require('react');
 const NodeWrapper = require('./NodeWrapper');
+const TextRange = require('./TextRange');
 
 /**
  * Render an entire slate node and its children.
@@ -22,9 +23,7 @@ const Node = React.createClass({
 
         if (node.kind == 'range') {
             return (
-                <NodeWrapper attributes={attributes} node={node}>
-                    {node.text}
-                </NodeWrapper>
+                <TextRange attributes={attributes} range={node} />
             );
         } else if (node.kind == 'text') {
             return (
