@@ -16,7 +16,10 @@ function lcs(xs, ys, isVariant, iter = 0) {
     const [xFirst, ...xRest] = xs;
     const [yFirst, ...yRest] = ys;
 
+    console.log(`lcs iter=${iter} xs=${xs.length} ys=${ys.length} xRest=${xRest.length} yRest=${yRest.length}`);
+
     if (isVariant(xFirst, yFirst)) {
+        console.log(' -> isVariant');
         return [
             {
                 original: xFirst,
@@ -25,6 +28,8 @@ function lcs(xs, ys, isVariant, iter = 0) {
         ].concat(lcs(xRest, yRest, isVariant, iter + 1));
     }
 
+
+    console.log(' -> other');
     const a = lcs(xs, yRest, isVariant, iter + 1);
     const b = lcs(xRest, ys, isVariant, iter + 1);
     return (a.length > b.length) ? a : b;
@@ -42,6 +47,7 @@ function lcs(xs, ys, isVariant, iter = 0) {
 function diffTree(original, modified, isVariant, isEqual, getChildren) {
     original = List(original).toArray();
     modified = List(modified).toArray();
+    console.log('\nCALL LCS');
     let subsequence = lcs(original, modified, isVariant);
 
     const result = [];
