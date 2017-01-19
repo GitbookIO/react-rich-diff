@@ -14,11 +14,14 @@
     padding: @richdiff-padding;
 
     .firstLevel-block(@color) {
+        position: relative;
+
         &:before {
             position: relative;
             left: -@richdiff-padding;
             content: "";
-            height: 100%;
+            top: 0px;
+            bottom: 0px;
             border-left: 4px solid #ffc045;
         }
     }
@@ -47,7 +50,7 @@
     }
 
     /* Tables */
-    .td.diff-block-modified {
+    td.diff-block-modified {
         color: @richdiff-modified-text-color;
         background: @richdiff-modified-background-color;
     }
