@@ -41,11 +41,16 @@ function getChildren(node) {
 function isVariant(a, b) {
     // For characters, it's always added/removed
     if (a.kind == 'character') {
-        return true;
+        return isEqual(a, b);
     }
 
     if (a.kind != b.kind) {
         return false;
+    }
+
+    // Void nodes should be rendered as added/remove
+    if (a.isVoid) {
+        return isEqual(a, b);
     }
 
     return isTypeEqual(a.type, b.type);
