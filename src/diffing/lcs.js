@@ -2,9 +2,10 @@
 /**
  * Returns a two-dimensional array (an array of arrays) with dimensions n by m.
  * All the elements of this new matrix are initially equal to x
- * @param n number of rows
- * @param m number of columns
- * @param x initial element for every item in matrix
+ * @param  {Number} n number of rows
+ * @param  {Number} m number of columns
+ * @param  {Mixed} x initial element for every item in matrix
+ * @return {Array<Array>}
  */
 function makeMatrix(n, m, x) {
     const matrix = [];
@@ -24,8 +25,9 @@ function makeMatrix(n, m, x) {
 /**
  * Computes Longest Common Subsequence between two Immutable.JS Indexed Iterables
  * Based on Dynamic Programming http://rosettacode.org/wiki/Longest_common_subsequence#Java
- * @param xs ImmutableJS Indexed Sequence 1
- * @param ys ImmutableJS Indexed Sequence 2
+ * @param  {Array} xs
+ * @param  {Array} ys
+ * @return {Array}
  */
 function lcs(xs, ys, isEqual) {
     const matrix = computeLcsMatrix(xs, ys, isEqual);
@@ -35,8 +37,9 @@ function lcs(xs, ys, isEqual) {
 
 /**
  * Computes the Longest Common Subsequence table
- * @param xs Indexed Sequence 1
- * @param ys Indexed Sequence 2
+ * @param  {Array} xs
+ * @param  {Array} ys
+ * @return {Array<Array>}
  */
 function computeLcsMatrix(xs, ys, isEqual) {
     const n = xs.length || 0;
@@ -59,10 +62,10 @@ function computeLcsMatrix(xs, ys, isEqual) {
 
 /**
  * Extracts a LCS from matrix M
- * @param xs Indexed Sequence 1
- * @param ys Indexed Sequence 2
- * @param matrix LCS Matrix
- * @returns {Array.<T>} Longest Common Subsequence
+ * @param  {Array} xs
+ * @param  {Array} ys
+ * @param  {Array<Array>}matrix LCS Matrix
+ * @return {Array<T>} Longest Common Subsequence
  */
 function backtrackLcs(xs, ys, matrix, isEqual) {
     const result = [];

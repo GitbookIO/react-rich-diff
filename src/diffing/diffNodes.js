@@ -45,6 +45,11 @@ function isVariant(a, b) {
         return isEqual(a, b);
     }
 
+    // We always go deep in text nodes to compare ranges.
+    if (a.kind == 'text') {
+        return true;
+    }
+
     if (a.kind != b.kind) {
         return false;
     }

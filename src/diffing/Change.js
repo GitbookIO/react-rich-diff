@@ -41,7 +41,7 @@ class Change extends Record(DEFAULTS) {
 
     static create(props) {
         return new Change({
-            key: String(KEY++),
+            key: `c${(KEY++)}`,
             ...props
         });
     }

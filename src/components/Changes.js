@@ -1,6 +1,8 @@
 const React = require('react');
+const { List } = require('immutable');
 
 const TYPES = require('../diffing/TYPES');
+const groupChanges = require('../diffing/groupChanges');
 const Node = require('./Node');
 const NodeWrapper = require('./NodeWrapper');
 
@@ -104,21 +106,69 @@ const Change = React.createClass({
 });
 
 /**
+ * Wrap identitcal changes in a toggable div.
+ * @type {React}
+ */
+const ToggableGroup = React.createClass({
+    propTypes: {
+        changes: React.PropTypes.object.isRequired
+    },
+
+    getInitialState() {
+        return {
+            visible: false
+        };
+    },
+
+    onClick() {
+        this.setState({
+            visible: true
+        });
+    },
+
+    render() {
+        const { changes } = this.props;
+        const { visible } = this.state;
+
+        if (!visible) {
+            return (
+                <div className="RichDiff-ToggableGroup" onClick={this.onClick}>
+                    <i className="octicon octicon-unfold"></i>
+                </div>
+            );
+        }
+
+        return (
+            <Changes
+                changes={changes}
+                Wrapper={props => <div>{props.children}</div>}
+                />
+        );
+    }
+});
+
+/**
  * Render a list of changes.
  * @type {React}
  */
 const Changes = React.createClass({
     propTypes: {
-        changes: React.PropTypes.object.isRequired,
-        Wrapper:  React.PropTypes.func
+        changes:   React.PropTypes.object.isRequired,
+        Wrapper:   React.PropTypes.func,
+        minToWrap: React.PropTypes.number
     },
 
     render() {
-        const { Wrapper, changes } = this.props;
+        const { Wrapper, changes, minToWrap } = this.props;
+        const groups = groupChanges(changes, minToWrap);
 
         return (
              <Wrapper>
-                 {changes.map(c => <Change key={c.key} change={c} />)}
+                 {groups.map((change, i) => List.isList(change) ? (
+                     <ToggableGroup key={i} changes={change} />
+                 ) : (
+                     <Change key={change.key} change={change} />
+                 ))}
              </Wrapper>
         );
     }

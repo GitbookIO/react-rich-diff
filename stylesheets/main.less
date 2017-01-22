@@ -1,17 +1,36 @@
-@richdiff-added-border-color:        #7fcb5c;
-@richdiff-added-background-color:    #eaffea;
-@richdiff-added-text-color:          inherit;
-@richdiff-modified-border-color:     #ffc045;
-@richdiff-modified-background-color: #ffffea;
-@richdiff-modified-text-color:       inherit;
-@richdiff-removed-border-color:      #c94114;
-@richdiff-removed-background-color:  #ffeaea;
-@richdiff-removed-text-color:        #a33;
-@richdiff-padding:                   20px;
+@richdiff-added-border-color:              #7fcb5c;
+@richdiff-added-background-color:          #eaffea;
+@richdiff-added-text-color:                inherit;
+@richdiff-modified-border-color:           #ffc045;
+@richdiff-modified-background-color:       #ffffea;
+@richdiff-modified-text-color:             inherit;
+@richdiff-removed-border-color:            #c94114;
+@richdiff-removed-background-color:        #ffeaea;
+@richdiff-removed-text-color:              #a33;
+@richdiff-padding:                         20px;
+@richdiff-toggable-group-color:            #767676;
+@richdiff-toggable-group-background:       #edf2f9;
+@richdiff-toggable-group-hover-color:      #fff;
+@richdiff-toggable-group-hover-background: #3884ff;
 
 .RichDiff {
     position: relative;
     padding: @richdiff-padding;
+
+    .RichDiff-ToggableGroup {
+        width: 100%;
+        line-height: 18px;
+        padding: 5px 2px;
+        color: @richdiff-toggable-group-color;
+        background: @richdiff-toggable-group-background;
+        cursor: pointer;
+        text-align: center;
+
+        &:hover {
+            color: @richdiff-toggable-group-hover-color;
+            background: @richdiff-toggable-group-hover-background;
+        }
+    }
 
     .firstLevel-block(@color) {
         position: relative;

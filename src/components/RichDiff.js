@@ -8,22 +8,25 @@ const Changes = require('./Changes');
 const RichDiff = React.createClass({
     propTypes: {
         className: React.PropTypes.string,
-        state:     React.PropTypes.object.isRequired
+        state:     React.PropTypes.object.isRequired,
+        minToWrap: React.PropTypes.number
     },
 
     getDefaultProps() {
         return {
-            className: ''
+            className: '',
+            minToWrap: 2
         };
     },
 
     render() {
-        const { state, className } = this.props;
+        const { state, className, minToWrap } = this.props;
 
         return (
             <Changes
                 Wrapper={props => <div className={'RichDiff ' + className}>{props.children}</div>}
                 changes={state.changes}
+                minToWrap={minToWrap}
             />
         );
     }
