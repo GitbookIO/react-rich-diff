@@ -16,7 +16,7 @@ function groupChanges(changes, minToWrap) {
     let accu = [];
 
     changes.forEach((change, i) => {
-        const isLast = (i == changes.size);
+        const isLast = (i == (changes.size - 1));
         const isIdentical = change.type == TYPES.IDENTICAL;
 
         if (isIdentical) {

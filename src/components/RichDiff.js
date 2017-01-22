@@ -15,7 +15,7 @@ const RichDiff = React.createClass({
     getDefaultProps() {
         return {
             className: '',
-            minToWrap: 4
+            minToWrap: 3
         };
     },
 
