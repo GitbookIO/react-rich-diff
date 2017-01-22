@@ -4,6 +4,19 @@
   /* First level blocks */
   /* Tables */
 }
+.RichDiff .RichDiff-ToggableGroup {
+  width: 100%;
+  line-height: 18px;
+  padding: 6px 12px;
+  color: #767676;
+  background: #edf2f9;
+  cursor: pointer;
+  text-align: center;
+}
+.RichDiff .RichDiff-ToggableGroup:hover {
+  color: #fff;
+  background: #3884ff;
+}
 .RichDiff > .diff-block-modified {
   position: relative;
 }

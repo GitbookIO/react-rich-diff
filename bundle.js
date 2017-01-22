@@ -8,6 +8,10 @@ var markdown = require('markup-it/lib/markdown');
 
 var RichDiff = require('../src');
 
+var ORGINAL = '\n# Example\n\nThis paragraph will be wrap because it\'s not changing.\n\n> this blockquote will also be wrapped.\n\nAnd changes begin:\n\n* Hello the world.\n* This is so cool\n\n| A | B |\n| -- | -- |\n| a1 | b1 |\n| a2 | a2 |\n';
+
+var MODIFIED = '\n# Example\n\nThis paragraph will be wrap because it\'s not changing.\n\n> this blockquote will also be wrapped.\n\nAnd changes begin:\n\n* This entry is inserted\n* Hello the world.\n* This is so cool\n\n| A | B |\n| -- | -- |\n| a1 | b1 |\n| a2 | b2 |\n| a3 | b3 |\n';
+
 function parse(str) {
     var state = MarkupIt.State.create(markdown);
     return state.deserializeToDocument(str);
@@ -17,8 +21,8 @@ var Example = React.createClass({
     displayName: 'Example',
     getInitialState: function getInitialState() {
         return {
-            original: '# Hello\n\nWorld',
-            modified: '# Hello\n\nWord'
+            original: ORGINAL,
+            modified: MODIFIED
         };
     },
     render: function render() {
@@ -60,7 +64,7 @@ var Example = React.createClass({
 
 ReactDOM.render(React.createElement(Example, null), document.getElementById('example'));
 
-},{"../src":465,"markup-it":172,"markup-it/lib/markdown":185,"react":374,"react-dom":219}],2:[function(require,module,exports){
+},{"../src":466,"markup-it":172,"markup-it/lib/markdown":185,"react":374,"react-dom":219}],2:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -77872,7 +77876,11 @@ function config (name) {
 
 var React = require('react');
 
+var _require = require('immutable'),
+    List = _require.List;
+
 var TYPES = require('../diffing/TYPES');
+var groupChanges = require('../diffing/groupChanges');
 var Node = require('./Node');
 var NodeWrapper = require('./NodeWrapper');
 
@@ -77990,6 +77998,53 @@ var Change = React.createClass({
 });
 
 /**
+ * Wrap identitcal changes in a toggable div.
+ * @type {React}
+ */
+var ToggableGroup = React.createClass({
+    displayName: 'ToggableGroup',
+
+    propTypes: {
+        changes: React.PropTypes.object.isRequired
+    },
+
+    getInitialState: function getInitialState() {
+        return {
+            visible: false
+        };
+    },
+    onClick: function onClick() {
+        this.setState({
+            visible: true
+        });
+    },
+    render: function render() {
+        var changes = this.props.changes;
+        var visible = this.state.visible;
+
+
+        if (!visible) {
+            return React.createElement(
+                'div',
+                { className: 'RichDiff-ToggableGroup', onClick: this.onClick },
+                React.createElement('i', { className: 'octicon octicon-unfold' })
+            );
+        }
+
+        return React.createElement(Changes, {
+            changes: changes,
+            Wrapper: function Wrapper(props) {
+                return React.createElement(
+                    'div',
+                    null,
+                    props.children
+                );
+            }
+        });
+    }
+});
+
+/**
  * Render a list of changes.
  * @type {React}
  */
@@ -77998,20 +78053,23 @@ var Changes = React.createClass({
 
     propTypes: {
         changes: React.PropTypes.object.isRequired,
-        Wrapper: React.PropTypes.func
+        Wrapper: React.PropTypes.func,
+        minToWrap: React.PropTypes.number
     },
 
     render: function render() {
         var _props = this.props,
             Wrapper = _props.Wrapper,
-            changes = _props.changes;
+            changes = _props.changes,
+            minToWrap = _props.minToWrap;
 
+        var groups = groupChanges(changes, minToWrap);
 
         return React.createElement(
             Wrapper,
             null,
-            changes.map(function (c) {
-                return React.createElement(Change, { key: c.key, change: c });
+            groups.map(function (change, i) {
+                return List.isList(change) ? React.createElement(ToggableGroup, { key: i, changes: change }) : React.createElement(Change, { key: change.key, change: change });
             })
         );
     }
@@ -78019,7 +78077,7 @@ var Changes = React.createClass({
 
 module.exports = Changes;
 
-},{"../diffing/TYPES":460,"./Node":454,"./NodeWrapper":455,"react":374}],454:[function(require,module,exports){
+},{"../diffing/TYPES":460,"../diffing/groupChanges":464,"./Node":454,"./NodeWrapper":455,"immutable":145,"react":374}],454:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -78114,7 +78172,7 @@ var NodeWrapper = React.createClass({
 
 module.exports = NodeWrapper;
 
-},{"../schema":470,"react":374}],456:[function(require,module,exports){
+},{"../schema":471,"react":374}],456:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -78129,18 +78187,21 @@ var RichDiff = React.createClass({
 
     propTypes: {
         className: React.PropTypes.string,
-        state: React.PropTypes.object.isRequired
+        state: React.PropTypes.object.isRequired,
+        minToWrap: React.PropTypes.number
     },
 
     getDefaultProps: function getDefaultProps() {
         return {
-            className: ''
+            className: '',
+            minToWrap: 3
         };
     },
     render: function render() {
         var _props = this.props,
             state = _props.state,
-            className = _props.className;
+            className = _props.className,
+            minToWrap = _props.minToWrap;
 
 
         return React.createElement(Changes, {
@@ -78151,7 +78212,8 @@ var RichDiff = React.createClass({
                     props.children
                 );
             },
-            changes: state.changes
+            changes: state.changes,
+            minToWrap: minToWrap
         });
     }
 });
@@ -78221,7 +78283,7 @@ var TextRange = React.createClass({
 
 module.exports = TextRange;
 
-},{"../schema":470,"react":374}],458:[function(require,module,exports){
+},{"../schema":471,"react":374}],458:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -78295,7 +78357,7 @@ var Change = function (_Record) {
         key: 'create',
         value: function create(props) {
             return new Change(_extends({
-                key: String(KEY++)
+                key: 'c' + KEY++
             }, props));
         }
     }, {
@@ -78478,6 +78540,11 @@ function isVariant(a, b) {
     // For characters, it's always added/removed
     if (a.kind == 'range') {
         return isEqual(a, b);
+    }
+
+    // We always go deep in text nodes to compare ranges.
+    if (a.kind == 'text') {
+        return true;
     }
 
     if (a.kind != b.kind) {
@@ -78669,7 +78736,7 @@ function diffTree(original, modified, isVariant, isEqual, getChildren) {
 
 module.exports = diffTree;
 
-},{"./Change":458,"./lcs":464,"immutable":145}],463:[function(require,module,exports){
+},{"./Change":458,"./lcs":465,"immutable":145}],463:[function(require,module,exports){
 'use strict';
 
 var _require = require('immutable'),
@@ -78705,14 +78772,64 @@ function getRangesFromText(text) {
 module.exports = getRangesFromText;
 
 },{"immutable":145}],464:[function(require,module,exports){
+'use strict';
+
+var _require = require('immutable'),
+    List = _require.List;
+
+var TYPES = require('./TYPES');
+
+/**
+ * Group changes to wrap identical nodes.
+ * @param  {List<Change>} changes
+ * @param  {Number} minToWrap
+ * @return {List<Change|List<Change>} groups
+ */
+function groupChanges(changes, minToWrap) {
+    if (!minToWrap) {
+        return changes;
+    }
+
+    var results = [];
+    var accu = [];
+
+    changes.forEach(function (change, i) {
+        var isLast = i == changes.size - 1;
+        var isIdentical = change.type == TYPES.IDENTICAL;
+
+        if (isIdentical) {
+            accu.push(change);
+        }
+
+        if (!isIdentical || isLast) {
+            if (accu.length > minToWrap) {
+                results.push(List(accu));
+            } else {
+                results = results.concat(accu);
+            }
+            accu = [];
+        }
+
+        if (!isIdentical) {
+            results.push(change);
+        }
+    });
+
+    return List(results);
+}
+
+module.exports = groupChanges;
+
+},{"./TYPES":460,"immutable":145}],465:[function(require,module,exports){
 "use strict";
 
 /**
  * Returns a two-dimensional array (an array of arrays) with dimensions n by m.
  * All the elements of this new matrix are initially equal to x
- * @param n number of rows
- * @param m number of columns
- * @param x initial element for every item in matrix
+ * @param  {Number} n number of rows
+ * @param  {Number} m number of columns
+ * @param  {Mixed} x initial element for every item in matrix
+ * @return {Array<Array>}
  */
 function makeMatrix(n, m, x) {
     var matrix = [];
@@ -78732,8 +78849,9 @@ function makeMatrix(n, m, x) {
 /**
  * Computes Longest Common Subsequence between two Immutable.JS Indexed Iterables
  * Based on Dynamic Programming http://rosettacode.org/wiki/Longest_common_subsequence#Java
- * @param xs ImmutableJS Indexed Sequence 1
- * @param ys ImmutableJS Indexed Sequence 2
+ * @param  {Array} xs
+ * @param  {Array} ys
+ * @return {Array}
  */
 function lcs(xs, ys, isEqual) {
     var matrix = computeLcsMatrix(xs, ys, isEqual);
@@ -78742,8 +78860,9 @@ function lcs(xs, ys, isEqual) {
 
 /**
  * Computes the Longest Common Subsequence table
- * @param xs Indexed Sequence 1
- * @param ys Indexed Sequence 2
+ * @param  {Array} xs
+ * @param  {Array} ys
+ * @return {Array<Array>}
  */
 function computeLcsMatrix(xs, ys, isEqual) {
     var n = xs.length || 0;
@@ -78765,10 +78884,10 @@ function computeLcsMatrix(xs, ys, isEqual) {
 
 /**
  * Extracts a LCS from matrix M
- * @param xs Indexed Sequence 1
- * @param ys Indexed Sequence 2
- * @param matrix LCS Matrix
- * @returns {Array.<T>} Longest Common Subsequence
+ * @param  {Array} xs
+ * @param  {Array} ys
+ * @param  {Array<Array>}matrix LCS Matrix
+ * @return {Array<T>} Longest Common Subsequence
  */
 function backtrackLcs(xs, ys, matrix, isEqual) {
     var result = [];
@@ -78795,7 +78914,7 @@ function backtrackLcs(xs, ys, matrix, isEqual) {
 
 module.exports = lcs;
 
-},{}],465:[function(require,module,exports){
+},{}],466:[function(require,module,exports){
 'use strict';
 
 var State = require('./diffing/State');
@@ -78805,7 +78924,7 @@ RichDiff.State = State;
 
 module.exports = RichDiff;
 
-},{"./components/RichDiff":456,"./diffing/State":459}],466:[function(require,module,exports){
+},{"./components/RichDiff":456,"./diffing/State":459}],467:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -78864,7 +78983,7 @@ var HeadingNode = React.createClass({
 
 module.exports = HeadingNode;
 
-},{"classnames":18,"markup-it":172,"react":374}],467:[function(require,module,exports){
+},{"classnames":18,"markup-it":172,"react":374}],468:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -78897,7 +79016,7 @@ var ImageNode = React.createClass({
 
 module.exports = ImageNode;
 
-},{"react":374}],468:[function(require,module,exports){
+},{"react":374}],469:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -78956,7 +79075,7 @@ var LinkNode = React.createClass({
 
 module.exports = LinkNode;
 
-},{"classnames":18,"react":374}],469:[function(require,module,exports){
+},{"classnames":18,"react":374}],470:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -78993,7 +79112,7 @@ var TableNode = React.createClass({
 
 module.exports = TableNode;
 
-},{"react":374}],470:[function(require,module,exports){
+},{"react":374}],471:[function(require,module,exports){
 'use strict';
 
 var _nodes, _marks;
@@ -79033,4 +79152,4 @@ var SCHEMA = {
 
 module.exports = SCHEMA;
 
-},{"./Heading":466,"./Image":467,"./Link":468,"./Table":469,"markup-it":172,"react":374}]},{},[1]);
+},{"./Heading":467,"./Image":468,"./Link":469,"./Table":470,"markup-it":172,"react":374}]},{},[1]);
