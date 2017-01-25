@@ -15,7 +15,8 @@ function diffNodes(original, modified) {
     const differ = Differ.create({
         isVariant,
         isEqual,
-        getChildren
+        getChildren,
+        getThreshold
     });
 
     return differ.diff(original, modified);
@@ -33,6 +34,22 @@ function getChildren(node) {
         return node.nodes;
     } else {
         return [];
+    }
+}
+
+/**
+ * Get threshold for two nodes.
+ * If the changes are more than it, it will be consider as modified.
+ *
+ * @param {Node} node
+ * @return {Number} 0 - 1
+ */
+function getThreshold(node) {
+    // For cells, we want to mark them as modified instead of showing insertion/deletion.
+    if (node.type == BLOCKS.TABLE_CELL) {
+        return 0;
+    } else {
+        return 0.3;
     }
 }
 
@@ -133,7 +150,6 @@ function isHeading(type) {
         BLOCKS.HEADING_6
     ].includes(type);
 }
-
 
 /**
  * Check if node type is a list.

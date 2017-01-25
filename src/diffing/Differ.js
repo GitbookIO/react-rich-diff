@@ -5,13 +5,13 @@ const lcs = require('./lcs');
 
 const DEFAULTS = {
     // Compare if two nodes are of the same type (for example "are they both paragraphs ?")
-    isVariant:   (a, b) => a == b,
+    isVariant:    (a, b) => a == b,
     // Compare if two nodes have the same props
-    isEqual:     (a, b) => a == b,
+    isEqual:      (a, b) => a == b,
     // Return children for an entry
-    getChildren: (a => []),
+    getChildren:  (a => []),
     // Lower-limit to consider two nodes has modified
-    threshold:   0.3
+    getThreshold: (a, b) => 0.3
 };
 
 class Differ extends Record(DEFAULTS) {
@@ -41,7 +41,7 @@ class Differ extends Record(DEFAULTS) {
         );
 
         const score = Change.getScore(children);
-        if (score < this.threshold) {
+        if (score < this.getThreshold(a, b)) {
             return false;
         }
 
