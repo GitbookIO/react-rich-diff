@@ -73,12 +73,14 @@ class Differ extends Record(DEFAULTS) {
         const variant = (xv && yv && matrix[i] && matrix[i][j]) ? matrix[i][j].result : null;
 
         if (i > 0 && j > 0 && variant) {
-            const change = (this.isEqual(xv, yv) && variant.score == 1) ? (
+            const areNodesEqual = this.isEqual(xv, yv);
+            const change = (areNodesEqual && variant.score == 1) ? (
                 Change.createIdentity(xv)
             ) : (
                 Change.createUpdate(
                     xv,
                     yv,
+                    (areNodesEqual ? 1 : 0.5) * variant.score,
                     variant.children
                 )
             );

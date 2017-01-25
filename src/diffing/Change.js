@@ -74,12 +74,12 @@ class Change extends Record(DEFAULTS) {
         });
     }
 
-    static createUpdate(original, modified, children) {
+    static createUpdate(original, modified, score, children) {
         return Change.create({
             type: TYPES.MODIFIED,
             original,
             modified,
-            score: Change.getScore(children),
+            score,
             children: List(children)
         });
     }
