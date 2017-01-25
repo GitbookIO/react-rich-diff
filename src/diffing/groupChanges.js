@@ -5,9 +5,10 @@ const TYPES = require('./TYPES');
  * Group changes to wrap identical nodes.
  * @param  {List<Change>} changes
  * @param  {Number} minToWrap
+ * @param  {Number} borderSize
  * @return {List<Change|List<Change>} groups
  */
-function groupChanges(changes, minToWrap) {
+function groupChanges(changes, minToWrap, borderSize = 1) {
     if (!minToWrap) {
         return changes;
     }
@@ -25,7 +26,11 @@ function groupChanges(changes, minToWrap) {
 
         if (!isIdentical || isLast) {
             if (accu.length > minToWrap) {
-                results.push(List(accu));
+                const toWrap = accu.slice(0, -borderSize);
+                const border = accu.slice(-borderSize);
+
+                results.push(List(toWrap));
+                results = results.concat(border);
             } else {
                 results = results.concat(accu);
             }
