@@ -29,10 +29,17 @@ const HeadingNode = React.createClass({
         const originalTag = original ? TAGS[original.type] : null;
         const modifiedTag = TAGS[node.type];
 
+        const originalID = original ? original.data.get('id', '<none>') : null;
+        const modifiedID = node.data.get('id', '<none>');
+
         let title = '';
 
-        if (originalTag != modifiedTag) {
+        if (original && originalTag != modifiedTag) {
             title = `Tag: ${originalTag} -> ${modifiedTag}`;
+        }
+
+        if (original && originalID != modifiedID) {
+            title = `${title ? title + ', ' : ''}ID: ${originalID} -> ${modifiedID}`;
         }
 
         return React.createElement(modifiedTag, {
