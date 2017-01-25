@@ -38,26 +38,34 @@ var Example = React.createClass({
 
         var state = RichDiff.State.create(originalDocument, modifiedDocument);
 
-        console.log(state.toJS());
-
         return React.createElement(
             'div',
             null,
-            React.createElement('textarea', {
-                value: original,
-                onChange: function onChange(e) {
-                    return _this.setState({ original: e.target.value });
-                }
-            }),
-            React.createElement('textarea', {
-                value: modified,
-                onChange: function onChange(e) {
-                    return _this.setState({ modified: e.target.value });
-                }
-            }),
-            React.createElement(RichDiff, {
-                state: state
-            })
+            React.createElement(
+                'div',
+                { className: 'EditionArea' },
+                React.createElement('textarea', {
+                    value: original,
+                    rows: 8,
+                    onChange: function onChange(e) {
+                        return _this.setState({ original: e.target.value });
+                    }
+                }),
+                React.createElement('textarea', {
+                    value: modified,
+                    rows: 8,
+                    onChange: function onChange(e) {
+                        return _this.setState({ modified: e.target.value });
+                    }
+                })
+            ),
+            React.createElement(
+                'div',
+                { className: '' },
+                React.createElement(RichDiff, {
+                    state: state
+                })
+            )
         );
     }
 });
@@ -78077,7 +78085,7 @@ var Changes = React.createClass({
 
 module.exports = Changes;
 
-},{"../diffing/TYPES":460,"../diffing/groupChanges":464,"./Node":454,"./NodeWrapper":455,"immutable":145,"react":374}],454:[function(require,module,exports){
+},{"../diffing/TYPES":461,"../diffing/groupChanges":464,"./Node":454,"./NodeWrapper":455,"immutable":145,"react":374}],454:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -78172,7 +78180,7 @@ var NodeWrapper = React.createClass({
 
 module.exports = NodeWrapper;
 
-},{"../schema":471,"react":374}],456:[function(require,module,exports){
+},{"../schema":472,"react":374}],456:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -78283,7 +78291,7 @@ var TextRange = React.createClass({
 
 module.exports = TextRange;
 
-},{"../schema":471,"react":374}],458:[function(require,module,exports){
+},{"../schema":472,"react":374}],458:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -78307,6 +78315,8 @@ var KEY = 0;
 var DEFAULTS = {
     key: String(),
     type: String(TYPES.IDENTICAL),
+    // Matching score (0 for ADDED/REMOVED, 1 for IDENTICAL, 0 - 1 for MODIFIED)
+    score: Number(0),
     original: null,
     modified: null,
     children: null
@@ -78345,6 +78355,7 @@ var Change = function (_Record) {
                 case TYPES.MODIFIED:
                     return {
                         type: type,
+                        // score,
                         original: serializeNode(original),
                         modified: serializeNode(modified),
                         children: children.map(function (child) {
@@ -78365,6 +78376,7 @@ var Change = function (_Record) {
         value: function createIdentity(value) {
             return Change.create({
                 type: TYPES.IDENTICAL,
+                score: 1,
                 original: value,
                 modified: value
             });
@@ -78374,6 +78386,7 @@ var Change = function (_Record) {
         value: function createAddition(modified) {
             return Change.create({
                 type: TYPES.ADDED,
+                score: 0,
                 modified: modified
             });
         }
@@ -78382,18 +78395,40 @@ var Change = function (_Record) {
         value: function createRemoval(original) {
             return Change.create({
                 type: TYPES.REMOVED,
+                score: 0,
                 original: original
             });
         }
     }, {
         key: 'createUpdate',
-        value: function createUpdate(original, modified, children) {
+        value: function createUpdate(original, modified, score, children) {
             return Change.create({
                 type: TYPES.MODIFIED,
                 original: original,
                 modified: modified,
+                score: score,
                 children: List(children)
             });
+        }
+
+        /**
+         * Calcul score for a list of changes.
+         * @param  {List<Change>} changes
+         * @return {Number} score
+         */
+
+    }, {
+        key: 'getScore',
+        value: function getScore(changes) {
+            if (changes.size == 0) {
+                return 1;
+            }
+
+            var count = changes.reduce(function (accu, change) {
+                return accu + change.score;
+            }, 0);
+
+            return count / changes.size;
         }
     }]);
 
@@ -78403,7 +78438,164 @@ var Change = function (_Record) {
 module.exports = Change;
 module.exports.TYPES = TYPES;
 
-},{"./TYPES":460,"immutable":145}],459:[function(require,module,exports){
+},{"./TYPES":461,"immutable":145}],459:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _require = require('immutable'),
+    List = _require.List,
+    Record = _require.Record;
+
+var Change = require('./Change');
+var lcs = require('./lcs');
+
+var DEFAULTS = {
+    // Compare if two nodes are of the same type (for example "are they both paragraphs ?")
+    isVariant: function isVariant(a, b) {
+        return a == b;
+    },
+    // Compare if two nodes have the same props
+    isEqual: function isEqual(a, b) {
+        return a == b;
+    },
+    // Return children for an entry
+    getChildren: function getChildren(a) {
+        return [];
+    },
+    // Lower-limit to consider two nodes has modified
+    getThreshold: function getThreshold(a, b) {
+        return 0.3;
+    }
+};
+
+var Differ = function (_Record) {
+    _inherits(Differ, _Record);
+
+    function Differ() {
+        _classCallCheck(this, Differ);
+
+        return _possibleConstructorReturn(this, (Differ.__proto__ || Object.getPrototypeOf(Differ)).apply(this, arguments));
+    }
+
+    _createClass(Differ, [{
+        key: 'compare',
+
+
+        /**
+         * Compare two nodes.
+         * @param {T} a
+         * @param {T} b
+         * @return {Boolean|Mixed}
+         */
+        value: function compare(a, b) {
+            if (!this.isVariant(a, b)) {
+                return false;
+            }
+
+            var children = this.diff(this.getChildren(a), this.getChildren(b));
+
+            var score = Change.getScore(children);
+            if (score < this.getThreshold(a, b)) {
+                return false;
+            }
+
+            return {
+                score: score,
+                children: children
+            };
+        }
+
+        /**
+         * Create a diff from a LCS matrix.
+         *
+         * @param  {Array<Array<Number>>} matrix
+         * @param  {Array<T>} xs
+         * @param  {Array<T>} ys
+         * @param  {Number} i
+         * @param  {Number} j
+         * @return {Array<Change>} changes
+         */
+
+    }, {
+        key: 'diffFromLCS',
+        value: function diffFromLCS(matrix, xs, ys, i, j) {
+            if (i === 0 && j === 0) {
+                return [];
+            }
+
+            var xv = xs[i - 1];
+            var yv = ys[j - 1];
+
+            var variant = xv && yv && matrix[i] && matrix[i][j] ? matrix[i][j].result : null;
+
+            if (i > 0 && j > 0 && variant) {
+                var areNodesEqual = this.isEqual(xv, yv);
+                var change = areNodesEqual && variant.score == 1 ? Change.createIdentity(xv) : Change.createUpdate(xv, yv, (areNodesEqual ? 1 : 0.5) * variant.score, variant.children);
+
+                return this.diffFromLCS(matrix, xs, ys, i - 1, j - 1).concat([change]);
+            } else if (j > 0 && (i === 0 || matrix[i][j - 1].value >= matrix[i - 1][j].value)) {
+                return this.diffFromLCS(matrix, xs, ys, i, j - 1).concat([Change.createAddition(yv)]);
+            } else if (i > 0 && (j === 0 || matrix[i][j - 1].value < matrix[i - 1][j].value)) {
+                return this.diffFromLCS(matrix, xs, ys, i - 1, j).concat([Change.createRemoval(xv)]);
+            } else {
+                throw new Error('Invalid LCS matrix');
+            }
+        }
+
+        /**
+         * Diff two tree of items.
+         *
+         * @param  {List}  original
+         * @param  {List}  modified
+         * @return {List<Change>}
+         */
+
+    }, {
+        key: 'diff',
+        value: function diff(original, modified) {
+            var _this2 = this;
+
+            original = List(original).toArray();
+            modified = List(modified).toArray();
+
+            if (original.length == 0 && modified.length == 0) {
+                return List();
+            }
+
+            var matrix = lcs.computeLcsMatrix(original, modified, function (a, b) {
+                return _this2.compare(a, b);
+            });
+
+            var result = this.diffFromLCS(matrix, original, modified, original.length, modified.length);
+
+            return List(result);
+        }
+    }], [{
+        key: 'create',
+
+
+        /**
+         * Create a new differ.
+         * @param {Object} props
+         */
+        value: function create(props) {
+            return new Differ(props);
+        }
+    }]);
+
+    return Differ;
+}(Record(DEFAULTS));
+
+module.exports = Differ;
+
+},{"./Change":458,"./lcs":465,"immutable":145}],460:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -78477,7 +78669,7 @@ var State = function (_Record) {
 
 module.exports = State;
 
-},{"./diffNodes":461,"immutable":145,"slate":397}],460:[function(require,module,exports){
+},{"./diffNodes":462,"immutable":145,"slate":397}],461:[function(require,module,exports){
 'use strict';
 
 /**
@@ -78493,7 +78685,7 @@ var TYPES = {
 
 module.exports = TYPES;
 
-},{}],461:[function(require,module,exports){
+},{}],462:[function(require,module,exports){
 'use strict';
 
 var Immutable = require('immutable');
@@ -78501,7 +78693,7 @@ var Immutable = require('immutable');
 var _require = require('markup-it'),
     BLOCKS = _require.BLOCKS;
 
-var diffTree = require('./diffTree');
+var Differ = require('./Differ');
 var getRangesFromText = require('./getRangesFromText');
 
 /**
@@ -78512,7 +78704,14 @@ var getRangesFromText = require('./getRangesFromText');
  * @return {List<Change>} changes
  */
 function diffNodes(original, modified) {
-    return diffTree(original, modified, isVariant, isEqual, getChildren);
+    var differ = Differ.create({
+        isVariant: isVariant,
+        isEqual: isEqual,
+        getChildren: getChildren,
+        getThreshold: getThreshold
+    });
+
+    return differ.diff(original, modified);
 }
 
 /**
@@ -78527,6 +78726,22 @@ function getChildren(node) {
         return node.nodes;
     } else {
         return [];
+    }
+}
+
+/**
+ * Get threshold for two nodes.
+ * If the changes are more than it, it will be consider as modified.
+ *
+ * @param {Node} node
+ * @return {Number} 0 - 1
+ */
+function getThreshold(node) {
+    // For cells, we want to mark them as modified instead of showing insertion/deletion.
+    if (node.type == BLOCKS.TABLE_CELL) {
+        return 0;
+    } else {
+        return 0.3;
     }
 }
 
@@ -78627,116 +78842,7 @@ function isList(type) {
 
 module.exports = diffNodes;
 
-},{"./diffTree":462,"./getRangesFromText":463,"immutable":145,"markup-it":172}],462:[function(require,module,exports){
-'use strict';
-
-function _toArray(arr) { return Array.isArray(arr) ? arr : Array.from(arr); }
-
-var _require = require('immutable'),
-    List = _require.List;
-
-var Change = require('./Change');
-var lcs = require('./lcs');
-
-/**
- * Diff two tree of items.
- * @param  {List}  original
- * @param  {List}  modified
- * @param  {Function} isVariant(a, b): Return true if a and b are modifiable items
- * @param  {Function} isEqual(a, b): Return true if a and b are stricly equal
- * @param  {Function} getChildren: Return children of an item
- * @return {List<Change>}
- */
-function diffTree(original, modified, isVariant, isEqual, getChildren) {
-    original = List(original).toArray();
-    modified = List(modified).toArray();
-    var subsequence = lcs(original, modified, isVariant);
-
-    var result = [];
-    var sfirst = void 0,
-        mfirst = void 0,
-        ofirst = void 0;
-
-    while (subsequence.length > 0) {
-        var _subsequence = subsequence;
-
-        var _subsequence2 = _toArray(_subsequence);
-
-        sfirst = _subsequence2[0];
-        subsequence = _subsequence2.slice(1);
-
-
-        while (modified.length > 0) {
-            var _modified = modified;
-
-            var _modified2 = _toArray(_modified);
-
-            mfirst = _modified2[0];
-            modified = _modified2.slice(1);
-
-            if (isEqual(mfirst, sfirst.modified)) {
-                break;
-            }
-
-            result.push(Change.createAddition(mfirst));
-        }
-
-        while (original.length > 0) {
-            var _original = original;
-
-            var _original2 = _toArray(_original);
-
-            ofirst = _original2[0];
-            original = _original2.slice(1);
-
-            if (isEqual(ofirst, sfirst.original)) {
-                break;
-            }
-
-            result.push(Change.createRemoval(ofirst));
-        }
-
-        var childrenChanges = diffTree(getChildren(sfirst.original), getChildren(sfirst.modified), isVariant, isEqual, getChildren);
-        var areChildrenIdentical = childrenChanges.every(function (change) {
-            return change.type == Change.TYPES.IDENTICAL;
-        });
-
-        if (areChildrenIdentical && isEqual(sfirst.original, sfirst.modified)) {
-            result.push(Change.createIdentity(sfirst.original));
-        } else {
-            result.push(Change.createUpdate(sfirst.original, sfirst.modified, childrenChanges));
-        }
-    }
-
-    while (modified.length > 0) {
-        var _modified3 = modified;
-
-        var _modified4 = _toArray(_modified3);
-
-        mfirst = _modified4[0];
-        modified = _modified4.slice(1);
-
-        result.push(Change.createAddition(mfirst));
-    }
-
-    while (original.length > 0) {
-        var _original3 = original;
-
-        var _original4 = _toArray(_original3);
-
-        ofirst = _original4[0];
-        original = _original4.slice(1);
-
-
-        result.push(Change.createRemoval(ofirst));
-    }
-
-    return List(result);
-}
-
-module.exports = diffTree;
-
-},{"./Change":458,"./lcs":465,"immutable":145}],463:[function(require,module,exports){
+},{"./Differ":459,"./getRangesFromText":463,"immutable":145,"markup-it":172}],463:[function(require,module,exports){
 'use strict';
 
 var _require = require('immutable'),
@@ -78820,7 +78926,7 @@ function groupChanges(changes, minToWrap) {
 
 module.exports = groupChanges;
 
-},{"./TYPES":460,"immutable":145}],465:[function(require,module,exports){
+},{"./TYPES":461,"immutable":145}],465:[function(require,module,exports){
 "use strict";
 
 /**
@@ -78847,18 +78953,6 @@ function makeMatrix(n, m, x) {
 }
 
 /**
- * Computes Longest Common Subsequence between two Immutable.JS Indexed Iterables
- * Based on Dynamic Programming http://rosettacode.org/wiki/Longest_common_subsequence#Java
- * @param  {Array} xs
- * @param  {Array} ys
- * @return {Array}
- */
-function lcs(xs, ys, isEqual) {
-    var matrix = computeLcsMatrix(xs, ys, isEqual);
-    return backtrackLcs(xs, ys, matrix, isEqual);
-}
-
-/**
  * Computes the Longest Common Subsequence table
  * @param  {Array} xs
  * @param  {Array} ys
@@ -78867,14 +78961,21 @@ function lcs(xs, ys, isEqual) {
 function computeLcsMatrix(xs, ys, isEqual) {
     var n = xs.length || 0;
     var m = ys.length || 0;
-    var a = makeMatrix(n + 1, m + 1, 0);
+    var a = makeMatrix(n + 1, m + 1, { value: 0 });
 
     for (var i = 0; i < n; i++) {
         for (var j = 0; j < m; j++) {
-            if (isEqual(xs[i], ys[j])) {
-                a[i + 1][j + 1] = a[i][j] + 1;
+            var result = isEqual(xs[i], ys[j]);
+
+            if (result) {
+                a[i + 1][j + 1] = {
+                    result: result,
+                    value: a[i][j].value + 1
+                };
             } else {
-                a[i + 1][j + 1] = Math.max(a[i + 1][j], a[i][j + 1]);
+                a[i + 1][j + 1] = {
+                    value: Math.max(a[i + 1][j].value, a[i][j + 1].value)
+                };
             }
         }
     }
@@ -78892,15 +78993,17 @@ function computeLcsMatrix(xs, ys, isEqual) {
 function backtrackLcs(xs, ys, matrix, isEqual) {
     var result = [];
     for (var i = xs.length, j = ys.length; i !== 0 && j !== 0;) {
-        if (matrix[i][j] === matrix[i - 1][j]) {
+        if (matrix[i][j].value === matrix[i - 1][j].value) {
             i--;
-        } else if (matrix[i][j] === matrix[i][j - 1]) {
+        } else if (matrix[i][j].value === matrix[i][j - 1].value) {
             j--;
         } else {
             var xValue = xs[i - 1];
             var yValue = ys[j - 1];
-            if (isEqual(xValue, yValue)) {
+            var value = isEqual(xValue, yValue);
+            if (value) {
                 result.push({
+                    value: matrix[i][j].result,
                     original: xValue,
                     modified: yValue
                 });
@@ -78912,7 +79015,10 @@ function backtrackLcs(xs, ys, matrix, isEqual) {
     return result.reverse();
 }
 
-module.exports = lcs;
+module.exports = {
+    backtrackLcs: backtrackLcs,
+    computeLcsMatrix: computeLcsMatrix
+};
 
 },{}],466:[function(require,module,exports){
 'use strict';
@@ -78924,7 +79030,7 @@ RichDiff.State = State;
 
 module.exports = RichDiff;
 
-},{"./components/RichDiff":456,"./diffing/State":459}],467:[function(require,module,exports){
+},{"./components/RichDiff":456,"./diffing/State":460}],467:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -78939,7 +79045,22 @@ var classNames = require('classnames');
 var _require = require('markup-it'),
     BLOCKS = _require.BLOCKS;
 
+var diffToTitle = require('./diffToTitle');
+
 var TAGS = (_TAGS = {}, _defineProperty(_TAGS, BLOCKS.HEADING_1, 'h1'), _defineProperty(_TAGS, BLOCKS.HEADING_2, 'h2'), _defineProperty(_TAGS, BLOCKS.HEADING_3, 'h3'), _defineProperty(_TAGS, BLOCKS.HEADING_4, 'h4'), _defineProperty(_TAGS, BLOCKS.HEADING_5, 'h5'), _defineProperty(_TAGS, BLOCKS.HEADING_6, 'h6'), _TAGS);
+
+var CRITERIAS = [{
+    label: 'Tag',
+    ignoreUnset: true,
+    value: function value(node) {
+        return TAGS[node.type];
+    }
+}, {
+    label: 'ID',
+    value: function value(node) {
+        return node.data.get('id');
+    }
+}];
 
 /**
  * Render an heading that has been modified.
@@ -78962,17 +79083,11 @@ var HeadingNode = React.createClass({
             node = _props.node,
             original = _props.original;
 
+        var nodeTag = TAGS[node.type];
 
-        var originalTag = original ? TAGS[original.type] : null;
-        var modifiedTag = TAGS[node.type];
+        var title = diffToTitle(original, node, CRITERIAS);
 
-        var title = '';
-
-        if (originalTag != modifiedTag) {
-            title = 'Tag: ' + originalTag + ' -> ' + modifiedTag;
-        }
-
-        return React.createElement(modifiedTag, _extends({}, attributes, {
+        return React.createElement(nodeTag, _extends({}, attributes, {
             className: classNames(attributes.className, {
                 'tooltipped': title
             }),
@@ -78983,7 +79098,7 @@ var HeadingNode = React.createClass({
 
 module.exports = HeadingNode;
 
-},{"classnames":18,"markup-it":172,"react":374}],468:[function(require,module,exports){
+},{"./diffToTitle":471,"classnames":18,"markup-it":172,"react":374}],468:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -79023,6 +79138,19 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var React = require('react');
 var classNames = require('classnames');
+var diffToTitle = require('./diffToTitle');
+
+var CRITERIAS = [{
+    label: 'Link',
+    value: function value(node) {
+        return node.data.get('href');
+    }
+}, {
+    label: 'Title',
+    value: function value(node) {
+        return node.data.get('title');
+    }
+}];
 
 /**
  * Render a link with a tooltip to signal the change.
@@ -79046,18 +79174,7 @@ var LinkNode = React.createClass({
             original = _props.original;
 
 
-        var originalData = original ? original.data.toJS() : {};
-        var modifiedData = node.data.toJS();
-
-        var title = '';
-
-        if (originalData.href != modifiedData.href) {
-            title = 'href: ' + (originalData.href || '') + ' -> ' + modifiedData.href;
-        }
-
-        if (originalData.title != modifiedData.title) {
-            title = 'title: ' + (originalData.title || '') + ' -> ' + modifiedData.title;
-        }
+        var title = diffToTitle(original, node, CRITERIAS);
 
         return React.createElement(
             'a',
@@ -79065,7 +79182,7 @@ var LinkNode = React.createClass({
                 className: classNames(attributes.className, {
                     'tooltipped': title
                 }),
-                href: modifiedData.href,
+                href: node.data.get('href'),
                 'aria-label': title
             }),
             children
@@ -79075,7 +79192,7 @@ var LinkNode = React.createClass({
 
 module.exports = LinkNode;
 
-},{"classnames":18,"react":374}],470:[function(require,module,exports){
+},{"./diffToTitle":471,"classnames":18,"react":374}],470:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -79113,6 +79230,41 @@ var TableNode = React.createClass({
 module.exports = TableNode;
 
 },{"react":374}],471:[function(require,module,exports){
+'use strict';
+
+var NONE = '<None>';
+
+/**
+ * Compare two nodes according to some criterias and return a tooltip message.
+ * @param  {Node} original
+ * @param  {Node} node
+ * @param  {Array} criterias
+ * @return {String}
+ */
+function diffToTitle(original, node, criterias) {
+    return criterias.reduce(function (title, criteria) {
+        var originalValue = original ? criteria.value(original) : null;
+        var modifiedValue = criteria.value(node);
+
+        if (originalValue == modifiedValue || criteria.ignoreUnset && !original) {
+            return title;
+        }
+
+        title = title ? title + ', ' : '';
+
+        if (originalValue) {
+            title += criteria.label + ': ' + (originalValue || NONE) + ' => ' + (modifiedValue || NONE);
+        } else {
+            title += criteria.label + ': ' + modifiedValue;
+        }
+
+        return title;
+    }, '');
+}
+
+module.exports = diffToTitle;
+
+},{}],472:[function(require,module,exports){
 'use strict';
 
 var _nodes, _marks;

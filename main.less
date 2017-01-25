@@ -1,0 +1,21 @@
+@import "../stylesheets/main.less";
+@import "./node_modules/gitbook-markdown-css/less/mixin.less";
+
+#example {
+    width: 100%;
+    max-width: 1000px;
+    margin: 20px auto;
+}
+
+.EditionArea {
+    display: flex;
+
+    textarea {
+        flex: 1;
+        resize: none;
+    }
+}
+
+.RichDiff {
+    .gitbook-markdown();
+}
