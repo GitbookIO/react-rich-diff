@@ -22,18 +22,6 @@ function makeMatrix(n, m, x) {
     return matrix;
 }
 
-/**
- * Computes Longest Common Subsequence between two Immutable.JS Indexed Iterables
- * Based on Dynamic Programming http://rosettacode.org/wiki/Longest_common_subsequence#Java
- * @param  {Array} xs
- * @param  {Array} ys
- * @return {Array}
- */
-function lcs(xs, ys, isEqual) {
-    const matrix = computeLcsMatrix(xs, ys, isEqual);
-    return backtrackLcs(xs, ys, matrix, isEqual);
-}
-
 
 /**
  * Computes the Longest Common Subsequence table
@@ -44,15 +32,22 @@ function lcs(xs, ys, isEqual) {
 function computeLcsMatrix(xs, ys, isEqual) {
     const n = xs.length || 0;
     const m = ys.length || 0;
-    const a = makeMatrix(n + 1, m + 1, 0);
+    const a = makeMatrix(n + 1, m + 1, { value: 0 });
 
     for (let i = 0; i < n; i++) {
         for (let j = 0; j < m; j++) {
-            if (isEqual(xs[i], ys[j])) {
-                a[i + 1][j + 1] = a[i][j] + 1;
+            const result = isEqual(xs[i], ys[j]);
+
+            if (result) {
+                a[i + 1][j + 1] = {
+                    result,
+                    value: a[i][j].value + 1
+                };
             }
             else {
-                a[i + 1][j + 1] = Math.max(a[i + 1][j], a[i][j + 1]);
+                a[i + 1][j + 1] = {
+                    value: Math.max(a[i + 1][j].value, a[i][j + 1].value)
+                };
             }
         }
     }
@@ -70,14 +65,16 @@ function computeLcsMatrix(xs, ys, isEqual) {
 function backtrackLcs(xs, ys, matrix, isEqual) {
     const result = [];
     for (let i = xs.length, j = ys.length; i !== 0 && j !== 0;) {
-        if (matrix[i][j] === matrix[i - 1][j]) { i--; }
-        else if (matrix[i][j] === matrix[i][j - 1]) { j--; }
+        if (matrix[i][j].value === matrix[i - 1][j].value) { i--; }
+        else if (matrix[i][j].value === matrix[i][j - 1].value) { j--; }
         else {
             const xValue = xs[i - 1];
             const yValue = ys[j - 1];
-            if (isEqual(xValue, yValue)) {
+            const value = isEqual(xValue, yValue);
+            if (value) {
                 result.push(
                     {
+                        value: matrix[i][j].result,
                         original: xValue,
                         modified: yValue
                     }
@@ -90,4 +87,7 @@ function backtrackLcs(xs, ys, matrix, isEqual) {
     return result.reverse();
 }
 
-module.exports = lcs;
+module.exports = {
+    backtrackLcs,
+    computeLcsMatrix
+};

@@ -21,12 +21,12 @@ changes:
             kind: text
             text: "Hello World"
           children:
-            - type: added
-              modified:
-                text: Hello
             - type: removed
               original:
                 text: Helo
+            - type: added
+              modified:
+                text: Hello
             - type: identical
               original:
                 text: " "

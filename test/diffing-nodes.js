@@ -41,7 +41,7 @@ function runTest(folder) {
 }
 
 
-describe('State', () => {
+describe('diffing-nodes', () => {
     const fixturesPath = path.resolve(__dirname, 'fixtures');
     const tests = fs.readdirSync(fixturesPath);
     tests.forEach((test) => {

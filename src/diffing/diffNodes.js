@@ -1,7 +1,7 @@
 const Immutable = require('immutable');
 const { BLOCKS } = require('markup-it');
 
-const diffTree = require('./diffTree');
+const Differ = require('./Differ');
 const getRangesFromText = require('./getRangesFromText');
 
 /**
@@ -12,10 +12,13 @@ const getRangesFromText = require('./getRangesFromText');
  * @return {List<Change>} changes
  */
 function diffNodes(original, modified) {
-    return diffTree(
-        original, modified,
-        isVariant, isEqual, getChildren
-    );
+    const differ = Differ.create({
+        isVariant,
+        isEqual,
+        getChildren
+    });
+
+    return differ.diff(original, modified);
 }
 
 /**
