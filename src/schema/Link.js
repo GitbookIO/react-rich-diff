@@ -1,5 +1,17 @@
 const React = require('react');
 const classNames = require('classnames');
+const diffToTitle = require('./diffToTitle');
+
+const CRITERIAS = [
+    {
+        label: 'Link',
+        value: (node => node.data.get('href'))
+    },
+    {
+        label: 'Title',
+        value: (node => node.data.get('title'))
+    }
+];
 
 /**
  * Render a link with a tooltip to signal the change.
@@ -16,18 +28,7 @@ const LinkNode = React.createClass({
     render() {
         const { children, attributes, node, original } = this.props;
 
-        const originalData = original ? original.data.toJS() : {};
-        const modifiedData = node.data.toJS();
-
-        let title = '';
-
-        if (originalData.href != modifiedData.href) {
-            title = `href: ${originalData.href || ''} -> ${modifiedData.href}`;
-        }
-
-        if (originalData.title != modifiedData.title) {
-            title = `title: ${originalData.title || ''} -> ${modifiedData.title}`;
-        }
+        const title = diffToTitle(original, node, CRITERIAS);
 
         return (
             <a
@@ -35,7 +36,7 @@ const LinkNode = React.createClass({
                 className={classNames(attributes.className, {
                     'tooltipped': title
                 })}
-                href={modifiedData.href}
+                href={node.data.get('href')}
                 aria-label={title}
             >
                 {children}

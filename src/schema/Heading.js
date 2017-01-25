@@ -1,6 +1,7 @@
 const React = require('react');
 const classNames = require('classnames');
 const { BLOCKS } = require('markup-it');
+const diffToTitle = require('./diffToTitle');
 
 const TAGS = {
     [BLOCKS.HEADING_1]:  'h1',
@@ -10,6 +11,18 @@ const TAGS = {
     [BLOCKS.HEADING_5]:  'h5',
     [BLOCKS.HEADING_6]:  'h6'
 };
+
+const CRITERIAS = [
+    {
+        label: 'Tag',
+        ignoreUnset: true,
+        value: (node => TAGS[node.type])
+    },
+    {
+        label: 'ID',
+        value: (node => node.data.get('id'))
+    }
+];
 
 /**
  * Render an heading that has been modified.
@@ -25,24 +38,12 @@ const HeadingNode = React.createClass({
 
     render() {
         const { children, attributes, node, original } = this.props;
+        const nodeTag = TAGS[node.type];
 
-        const originalTag = original ? TAGS[original.type] : null;
-        const modifiedTag = TAGS[node.type];
 
-        const originalID = original ? original.data.get('id', '<none>') : null;
-        const modifiedID = node.data.get('id', '<none>');
+        const title = diffToTitle(original, node, CRITERIAS);
 
-        let title = '';
-
-        if (original && originalTag != modifiedTag) {
-            title = `Tag: ${originalTag} -> ${modifiedTag}`;
-        }
-
-        if (original && originalID != modifiedID) {
-            title = `${title ? title + ', ' : ''}ID: ${originalID} -> ${modifiedID}`;
-        }
-
-        return React.createElement(modifiedTag, {
+        return React.createElement(nodeTag, {
             ...attributes,
             className: classNames(attributes.className, {
                 'tooltipped': title
