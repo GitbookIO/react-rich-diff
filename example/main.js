@@ -49,7 +49,6 @@ function parse(str) {
     return state.deserializeToDocument(str);
 }
 
-
 const Example = React.createClass({
     getInitialState() {
         return {
@@ -66,21 +65,26 @@ const Example = React.createClass({
 
         const state = RichDiff.State.create(originalDocument, modifiedDocument);
 
-        console.log(state.toJS());
-
         return (
             <div>
-                <textarea
-                    value={original}
-                    onChange={e => this.setState({ original: e.target.value })}
-                    />
-                <textarea
-                    value={modified}
-                    onChange={e => this.setState({ modified: e.target.value })}
-                    />
-                <RichDiff
-                    state={state}
-                    />
+                <div className="EditionArea">
+                    <textarea
+                        value={original}
+                        rows={8}
+                        onChange={e => this.setState({ original: e.target.value })}
+                        />
+                    <textarea
+                        value={modified}
+                        rows={8}
+                        onChange={e => this.setState({ modified: e.target.value })}
+                        />
+                </div>
+
+                <div className="">
+                    <RichDiff
+                        state={state}
+                        />
+                </div>
             </div>
         );
     }

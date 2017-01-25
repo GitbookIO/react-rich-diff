@@ -2085,6 +2085,10 @@ gh-pages@^0.12.0:
     q-io "1.13.2"
     rimraf "^2.5.4"
 
+gitbook-markdown-css@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/gitbook-markdown-css/-/gitbook-markdown-css-1.1.0.tgz#8bb0c7a775bbcd75d9d750f7e12950b709751dc4"
+
 glob-base@^0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/glob-base/-/glob-base-0.3.0.tgz#dbb164f6221b1c0b1ccf82aea328b497df0ea3c4"
