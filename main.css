@@ -8,15 +8,17 @@
   width: 100%;
   line-height: 18px;
   padding: 6px 12px;
-  color: #767676;
-  background: #edf2f9;
+  color: #d3d3d3;
+  background: transparent;
   cursor: pointer;
-  text-align: center;
   margin: 20px 0px;
+  border-radius: 3px;
+  font-size: 21px;
+  text-align: center;
 }
 .RichDiff .RichDiff-ToggableGroup:hover {
-  color: #fff;
-  background: #3884ff;
+  color: #333;
+  background: transparent;
 }
 .RichDiff > .diff-block-modified {
   position: relative;
@@ -51,13 +53,11 @@
   bottom: 0px;
   border-left: 4px solid #c94114;
 }
-.RichDiff .diff-block-added,
 .RichDiff .diff-range-added,
 .RichDiff .diff-text-added {
   color: inherit !important;
   background: #eaffea !important;
 }
-.RichDiff .diff-block-removed,
 .RichDiff .diff-range-removed,
 .RichDiff .diff-text-removed {
   color: #a33 !important;
